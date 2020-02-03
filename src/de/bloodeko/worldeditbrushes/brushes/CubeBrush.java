@@ -8,13 +8,11 @@ import com.sk89q.worldedit.math.BlockVector3;
 
 public class CubeBrush implements Brush {
 
-    private final int width;
-    private final int height;
+    private final int     width;
     private final boolean spherical;
     
-    public CubeBrush(int width, int height, boolean spherical) {
+    public CubeBrush(int width, boolean spherical) {
         this.width  = width;
-        this.height = height;
         this.spherical = spherical;
     }
 

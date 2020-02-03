@@ -14,6 +14,7 @@ import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.bloodeko.worldeditbrushes.ShapeCycler;
+import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
 
 public class FillBrush implements Brush {
     

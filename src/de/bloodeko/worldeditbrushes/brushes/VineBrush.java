@@ -15,6 +15,7 @@ import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.bloodeko.worldeditbrushes.ShapeCycler;
+import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
 
 /**
  * Places hanging vines.
@@ -86,7 +87,6 @@ public class VineBrush implements Brush {
                 //System.out.println("match SolidSize!");
                 int randomSide   = solidSide.get(rand.nextInt(solidSide.size()));
                 int randomLength = length;
-                int total = 0;
                 
                 BlockState newVine = vines[randomSide];
                 for (int extendVine = 0; extendVine <= randomLength; extendVine++) {
@@ -104,7 +104,6 @@ public class VineBrush implements Brush {
                                 session.setBlock(pos.add(0,-(extendVine),0), mat);
                                 System.out.println("after2:" +  session.getBlock(pos.add(0,-(extendVine),0)));
                             }
-                            total++;
                             marked.add(pos);
                         }
                         catch(MaxChangedBlocksException ex) {

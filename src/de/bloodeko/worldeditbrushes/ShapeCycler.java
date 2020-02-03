@@ -2,8 +2,6 @@ package de.bloodeko.worldeditbrushes;
 
 import com.sk89q.worldedit.math.BlockVector3;
 
-import de.bloodeko.worldeditbrushes.brushes.BrushFunction;
-
 /**
  * Iterates through all blocks in a sphere.
  * Applies the function on matching locations.
@@ -266,6 +264,10 @@ public class ShapeCycler {
     
     private double lengthSq(double x, double y, double z) {
         return (x*x) + (y*y) + (z*z);
+    }
+    
+    public interface BrushFunction {
+        public void apply(double px, double py, double pz, double lenSq);
     }
     
 }

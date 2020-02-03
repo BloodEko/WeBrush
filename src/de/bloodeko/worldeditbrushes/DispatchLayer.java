@@ -1,115 +1,192 @@
 package de.bloodeko.worldeditbrushes;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxBrushRadiusException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.command.tool.BrushTool;
-import com.sk89q.worldedit.entity.Player;
+import com.sk89q.worldedit.command.tool.InvalidToolBindException;
+import com.sk89q.worldedit.extension.factory.parser.pattern.SingleBlockPatternParser;
+import com.sk89q.worldedit.extension.input.InputParseException;
+import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.util.HandSide;
 import com.sk89q.worldedit.util.formatting.text.TextComponent;
+import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.bloodeko.worldeditbrushes.brushes.CubeBrush;
 import de.bloodeko.worldeditbrushes.brushes.ErodeBrush;
 import de.bloodeko.worldeditbrushes.brushes.FillBrush;
 import de.bloodeko.worldeditbrushes.brushes.TestBrush;
-import de.bloodeko.worldeditbrushes.brushes.TestSphere;
 import de.bloodeko.worldeditbrushes.brushes.VineBrush;
 import net.md_5.bungee.api.ChatColor;
 
 
 public class DispatchLayer {
-
-    public static void loadErodeBrush(Player player, LocalSession session, Pattern pattern, double size, int iterations, int maxFaces) throws WorldEditException {
-        
-        WorldEdit.getInstance().checkMaxBrushRadius(size);
-        BrushTool tool = session.getBrushTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
-        
-        tool.setFill(pattern);
-        tool.setSize(size);
-        tool.setBrush(new ErodeBrush(iterations, maxFaces), "worldedit.brush.erode");
-
-        player.printInfo(TextComponent.of(ChatColor.LIGHT_PURPLE + "Set Erode brush." 
-                                   + " Size:"       + (int) size
-                                   + " Iterations:" + iterations
-                                   + " MaxFaces:"   + maxFaces));
+  
+    public static Map<String, BrushLoader> brushes = new HashMap<>();
+    
+    static {
+        brushes.put("erode", new LoadErode());
+        brushes.put("fill",  new LoadFill());
+        brushes.put("vine",  new LoadVine());
+        brushes.put("test",  new LoadTest());
+        brushes.put("cube",  new LoadCube());
     }
     
     
-    public static void loadFillBrush(Player player, LocalSession session, Pattern pattern, double size, int iterations, int maxFaces) throws WorldEditException {
+    public static class LoadErode extends BaseLoader {
         
-        WorldEdit.getInstance().checkMaxBrushRadius(size);
-        BrushTool tool = session.getBrushTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
-        
-        tool.setFill(pattern);
-        tool.setSize(size);
-        tool.setBrush(new FillBrush(iterations, maxFaces), "worldedit.brush.fill");
-
-        player.printInfo(TextComponent.of(ChatColor.LIGHT_PURPLE + "Set Fill brush." 
-                                   + " Size:"       + (int) size
-                                   + " Iterations:" + iterations
-                                   + " MaxFaces:"   + maxFaces));
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            int size       = getIntOrDefault(args, 1, 5);
+            int iterations = getIntOrDefault(args, 2, 1);
+            int maxFaces   = getIntOrDefault(args, 3, 3);
+            
+            checkSize(size);
+            BrushTool tool = getTool(player, session);
+            
+            tool.setFill(null);
+            tool.setSize(size);
+            tool.setBrush(new ErodeBrush(iterations, maxFaces), "worldedit.brush.erode");
+            print(player, "Erode",
+                " Size:"       + size
+              + " Iterations:" + iterations
+              + " MaxFaces:"   + maxFaces);
+        }
     }
     
-    public static void loadVineBrush(Player player, LocalSession session, Pattern pattern, double size, double density, int length) throws WorldEditException {
+    public static class LoadFill extends BaseLoader {
         
-        WorldEdit.getInstance().checkMaxBrushRadius(size);
-        BrushTool tool = session.getBrushTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
-        
-        tool.setFill(pattern);
-        tool.setSize(size);
-        tool.setBrush(new VineBrush(density, length), "worldedit.brush.vine");
-
-        player.printInfo(TextComponent.of(ChatColor.LIGHT_PURPLE + "Set Vine brush." 
-                                   + " Size:"       + (int) size
-                                   + " Mat:"        + pattern
-                                   + " Density:"    + density
-                                   + " Length:"   + length));
-    }  
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            int size       = getIntOrDefault(args, 1, 5);
+            int iterations = getIntOrDefault(args, 2, 1);
+            int maxFaces   = getIntOrDefault(args, 3, 3);
+            
+            checkSize(size);
+            BrushTool tool = getTool(player, session);
+            
+            tool.setFill(null);
+            tool.setSize(size);
+            tool.setBrush(new FillBrush(iterations, maxFaces), "worldedit.brush.fill");
+            print(player, "Fill",
+                " Size:"       + size
+              + " Iterations:" + iterations
+              + " MaxFaces:"   + maxFaces);
+        }
+    }
     
-    public static void loadTest(Player player, LocalSession session, Pattern pattern, double size) throws WorldEditException {
-        WorldEdit.getInstance().checkMaxBrushRadius(size);
-        BrushTool tool = session.getBrushTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+    public static class LoadVine extends BaseLoader {
         
-        tool.setFill(pattern);
-        tool.setSize(size);
-        tool.setBrush(new TestBrush(), "worldedit.brush.test");
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.VINE.getDefaultState());
+            int     size    = getIntOrDefault(args, 2, 5);
+            double  chance  = getDoubleOrDefault(args, 3, 0.5);
+            int     length  = getIntOrDefault(args, 4, 5);
+            
+            checkSize(size);
+            BrushTool tool = getTool(player, session);
+            
+            tool.setFill(pattern);
+            tool.setSize(size);
+            tool.setBrush(new VineBrush(chance, length), "worldedit.brush.vine");
 
-        player.printInfo(TextComponent.of(ChatColor.LIGHT_PURPLE + "Set Test brush." 
-                                   + " Size:"       + (int) size
-                                   + " Mat:"        + pattern));
+            print(player, "Vine",
+                " Size:"   + size
+              + " Mat:"    + pattern
+              + " Chance:" + chance
+              + " Length:" + length);
+        }
     }
-
-
-    public static void loadTestSphere(Player player, LocalSession session, Pattern pattern, int size) throws WorldEditException {
-        WorldEdit.getInstance().checkMaxBrushRadius(size);
-        BrushTool tool = session.getBrushTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+    
+    public static class LoadTest extends BaseLoader {
         
-        tool.setFill(pattern);
-        tool.setSize(size);
-        tool.setBrush(new TestSphere(), "worldedit.brush.sphere");
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            int     size    = getIntOrDefault(args, 2, 5);
+            
+            checkSize(size);
+            BrushTool tool = getTool(player, session);
 
-        player.printInfo(TextComponent.of(ChatColor.LIGHT_PURPLE + "Set TestSphere brush." 
-                                   + " Size:"       + (int) size
-                                   + " Mat:"        + pattern));
+            tool.setFill(pattern);
+            tool.setSize(size);
+            tool.setBrush(new TestBrush(), "worldedit.brush.test");
+
+            print(player, "Test",
+                " Size:" + size
+              + " Mat:"  + pattern);
+        }
     }
-
-
-    public static void loadCuboid(Player player, LocalSession session, Pattern mat, int width, int height, boolean spherical) throws WorldEditException {
-        WorldEdit.getInstance().checkMaxBrushRadius(width);
-        WorldEdit.getInstance().checkMaxBrushRadius(height);
-        BrushTool tool = session.getBrushTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+    
+    public static class LoadCube extends BaseLoader {
         
-        tool.setFill(mat);
-        tool.setSize(width);
-        tool.setBrush(new CubeBrush(width, height, spherical), "worldedit.brush.cuboid");
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern pattern   = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            int     width     = getIntOrDefault(args, 2, 5);
+            boolean spherical = getBooleanOrDefault(args, 3, false);
+            
+            checkSize(width);
+            BrushTool tool = getTool(player, session);
 
-        player.printInfo(TextComponent.of(ChatColor.LIGHT_PURPLE + "Set cuboid brush."
-                                   + " mat:"    + mat
-                                   + " width:"  + width
-                                   + " height:" + height
-                                   + " spherical:"   + spherical));
-    } 
+            tool.setFill(pattern);
+            tool.setSize(width);
+            tool.setBrush(new CubeBrush(width, spherical), "worldedit.brush.test");
+
+            print(player, "Cube",
+                " mat:"    + pattern
+              + " width:"  + width
+              + " spherical:"   + spherical);
+        }
+    }
+    
+    
+    public static interface BrushLoader {
+        public abstract void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException;
+    }
+    
+    
+    public static abstract class BaseLoader implements BrushLoader {
+
+        public boolean getBooleanOrDefault(String[] args, int i, boolean or) {
+            return args.length > i ? Boolean.parseBoolean(args[i]) : or;
+        }
+        
+        public int getIntOrDefault(String[] args, int index, int or) {
+            return args.length > index ? Integer.parseInt(args[index]) : or;
+        }
+        
+        public double getDoubleOrDefault(String[] args, int index, double or) {
+            return args.length > index ? Double.parseDouble(args[index]) : or;
+        }
+        
+        public Pattern getPatternOrdefault(LocalSession session, BukkitPlayer player, String[] args, int index, Pattern or) throws InputParseException {
+            if (args.length <= index) {
+                return or;
+            }
+            SingleBlockPatternParser parser = new SingleBlockPatternParser(WorldEdit.getInstance());
+            ParserContext context = new ParserContext();
+            context.setActor(player);
+            context.setWorld(player.getWorld());
+            context.setSession(session);
+            return parser.parseFromInput(args[index], context);
+        }
+        
+        public void checkSize(double size) throws MaxBrushRadiusException {
+            WorldEdit.getInstance().checkMaxBrushRadius(size);
+        }
+        
+        public BrushTool getTool(BukkitPlayer player, LocalSession session) throws InvalidToolBindException {
+            return session.getBrushTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+        }
+        
+        public void print(BukkitPlayer player, String name, String message) {
+            player.printInfo(TextComponent.of(ChatColor.LIGHT_PURPLE + "Set " + name + "brush. " + message));
+        }
+
+        @Override
+        public abstract void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException;
+    }
 }
