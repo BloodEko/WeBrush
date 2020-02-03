@@ -1,0 +1,9 @@
+name: WorldEditBrushes
+main: de.bloodeko.worldeditbrushes.WorldEditBrushes
+version: 1.0
+depend: [WorldEdit]
+commands:
+   webrush:
+      permission: webrush.admin
+      description: Loads an brush.
+      usage: /webrush

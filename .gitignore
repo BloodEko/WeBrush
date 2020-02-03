@@ -1,0 +1,12 @@
+
+*.class
+target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+target/WorldEditBrushes-1.0.0.jar
+target/maven-archiver/pom.properties
+target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+target/antrun/build-main.xml
+.project
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.m2e.core.prefs
+.classpath
+target/classes/plugin.yml
