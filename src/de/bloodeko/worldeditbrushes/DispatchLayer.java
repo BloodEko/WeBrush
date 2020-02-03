@@ -3,6 +3,8 @@ package de.bloodeko.worldeditbrushes;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxBrushRadiusException;
 import com.sk89q.worldedit.WorldEdit;
@@ -18,6 +20,7 @@ import com.sk89q.worldedit.util.HandSide;
 import com.sk89q.worldedit.util.formatting.text.TextComponent;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
+import de.bloodeko.worldeditbrushes.brushes.BlendBallBrush;
 import de.bloodeko.worldeditbrushes.brushes.CubeBrush;
 import de.bloodeko.worldeditbrushes.brushes.ErodeBrush;
 import de.bloodeko.worldeditbrushes.brushes.FillBrush;
@@ -36,6 +39,7 @@ public class DispatchLayer {
         brushes.put("vine",  new LoadVine());
         brushes.put("test",  new LoadTest());
         brushes.put("cube",  new LoadCube());
+        brushes.put("bb",    new LoadBlendBall());
     }
     
     
@@ -95,8 +99,8 @@ public class DispatchLayer {
             tool.setBrush(new VineBrush(chance, length), "worldedit.brush.vine");
 
             print(player, "Vine",
-                " Size:"   + size
-              + " Mat:"    + pattern
+                " Mat:"    + format(pattern)
+              + " Size:"   + size
               + " Chance:" + chance
               + " Length:" + length);
         }
@@ -116,8 +120,8 @@ public class DispatchLayer {
             tool.setBrush(new TestBrush(), "worldedit.brush.test");
 
             print(player, "Test",
-                " Size:" + size
-              + " Mat:"  + pattern);
+                " Mat:"  + format(pattern)
+              + " Size:" + size);
         }
     }
     
@@ -136,9 +140,23 @@ public class DispatchLayer {
             tool.setBrush(new CubeBrush(width, spherical), "worldedit.brush.test");
 
             print(player, "Cube",
-                " mat:"    + pattern
-              + " width:"  + width
-              + " spherical:"   + spherical);
+                " Mat:"       + format(pattern)
+              + " Width:"     + width
+              + " Spherical:" + spherical);
+        }
+    }
+    
+    public static class LoadBlendBall extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            BrushTool tool = getTool(player, session);
+
+            tool.setFill(null);
+            tool.setSize(3);
+            tool.setBrush(new BlendBallBrush(), "worldedit.brush.blendball");
+
+            print(player, "BlendBall",
+                " Size:"      + 5);
         }
     }
     
@@ -184,6 +202,10 @@ public class DispatchLayer {
         
         public void print(BukkitPlayer player, String name, String message) {
             player.printInfo(TextComponent.of(ChatColor.LIGHT_PURPLE + "Set " + name + "brush. " + message));
+        }
+        
+        public String format(Pattern pattern) {
+            return StringUtils.substringAfter(pattern.toString(), "minecraft:");
         }
 
         @Override
