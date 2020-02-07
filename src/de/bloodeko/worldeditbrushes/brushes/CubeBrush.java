@@ -26,9 +26,6 @@ public class CubeBrush implements Brush {
     public void build(EditSession session, BlockVector3 middle, Pattern pattern, double size)
             throws MaxChangedBlocksException {
         
-        int calls = 0;
-        int set   = 0;
-        
         int startX = middle.getX() - width / 2;
         int startY = middle.getY() - width / 2;
         int startZ = middle.getZ() - width / 2;
@@ -46,7 +43,6 @@ public class CubeBrush implements Brush {
         for (int x = startX; x < endX; x++) {
             for (int y = startY; y < endY; y++) {
                 for (int z = startZ; z < endZ; z++) {
-                    calls++;
                     BlockVector3 vec = BlockVector3.at(x, y, z);
                     
                     if (spherical) {
@@ -57,20 +53,15 @@ public class CubeBrush implements Brush {
                         double sqrt = Math.sqrt(mul);
                         
                         if (sqrt <= (size/2)) {
-                            set++;
                             session.setBlock(vec, pattern);
                         }
                         continue;
                     }
-
-                    set++;
                     session.setBlock(vec, pattern);
                 }
             }
         }
         
-        System.out.println("Cubecalls:" + calls);
-        System.out.println("CubeSet:"   + set);
     }
 
 }
