@@ -21,9 +21,12 @@ import com.sk89q.worldedit.util.formatting.text.TextComponent;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.bloodeko.worldeditbrushes.brushes.BlendBallBrush;
+import de.bloodeko.worldeditbrushes.brushes.BlendBallErosion;
 import de.bloodeko.worldeditbrushes.brushes.CubeBrush;
 import de.bloodeko.worldeditbrushes.brushes.ErodeBrush;
+import de.bloodeko.worldeditbrushes.brushes.ErosionBrush;
 import de.bloodeko.worldeditbrushes.brushes.FillBrush;
+import de.bloodeko.worldeditbrushes.brushes.OverlayBrush;
 import de.bloodeko.worldeditbrushes.brushes.TestBrush;
 import de.bloodeko.worldeditbrushes.brushes.VineBrush;
 import net.md_5.bungee.api.ChatColor;
@@ -34,21 +37,28 @@ public class DispatchLayer {
     public static Map<String, BrushLoader> brushes = new HashMap<>();
     
     static {
-        brushes.put("erode", new LoadErode());
-        brushes.put("fill",  new LoadFill());
-        brushes.put("vine",  new LoadVine());
-        brushes.put("test",  new LoadTest());
-        brushes.put("cube",  new LoadCube());
-        brushes.put("bb",    new LoadBlendBall());
+        brushes.put("erode",   new LoadErode());
+        brushes.put("fill",    new LoadFill());
+        
+        brushes.put("vine",    new LoadVine());
+        
+        brushes.put("test",    new LoadTest());
+        
+        brushes.put("cube",    new LoadCube());
+        
+        brushes.put("bb",      new LoadBlendBall());
+        brushes.put("erosion", new LoadErosion());
+        brushes.put("ebb",     new LoadBlendballErosion());
+        brushes.put("over",    new LoadOverlay());
     }
     
     
     public static class LoadErode extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int size       = getIntOrDefault(args, 1, 5);
-            int iterations = getIntOrDefault(args, 2, 1);
-            int maxFaces   = getIntOrDefault(args, 3, 3);
+            int size       = getIntOrDefault(args, 1, 2);
+            int maxFaces   = getIntOrDefault(args, 2, 2);
+            int iterations = getIntOrDefault(args, 3, 1);
             
             checkSize(size);
             BrushTool tool = getTool(player, session);
@@ -66,9 +76,9 @@ public class DispatchLayer {
     public static class LoadFill extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int size       = getIntOrDefault(args, 1, 5);
-            int iterations = getIntOrDefault(args, 2, 1);
-            int maxFaces   = getIntOrDefault(args, 3, 3);
+            int size       = getIntOrDefault(args, 1, 2);
+            int maxFaces   = getIntOrDefault(args, 2, 2);
+            int iterations = getIntOrDefault(args, 3, 1);
             
             checkSize(size);
             BrushTool tool = getTool(player, session);
@@ -157,6 +167,75 @@ public class DispatchLayer {
 
             print(player, "BlendBall",
                 " Size:"      + 5);
+        }
+    }
+    
+    public static class LoadErosion extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            int     size         = getIntOrDefault(args, 1, 5);
+            int     erosionFaces = getIntOrDefault(args, 2, 6);
+            int     eresionRecur = getIntOrDefault(args, 3, 0);
+            int     fillFaces    = getIntOrDefault(args, 4, 1);
+            int     fillRecur    = getIntOrDefault(args, 5, 1);
+            
+            BrushTool tool = getTool(player, session);
+            tool.setFill(null);
+            tool.setSize(3);
+            tool.setBrush(new ErosionBrush(erosionFaces, eresionRecur, fillFaces, fillRecur), "worldedit.brush.erosion");
+
+            print(player, "Erosion",
+                  " Size:"         + size
+                + " erosionFaces:" + erosionFaces
+                + " eresionRecur:" + eresionRecur
+                + " fillFaces:"    + fillFaces
+                + " fillRecur:"    + fillRecur);
+        }
+    }
+    
+    public static class LoadBlendballErosion extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            int     size         = getIntOrDefault(args, 1, 5);
+            int     blendradius  = getIntOrDefault(args, 2, 1);
+            int     erosionFaces = getIntOrDefault(args, 3, 6);
+            int     eresionRecur = getIntOrDefault(args, 4, 0);
+            int     fillFaces    = getIntOrDefault(args, 5, 1);
+            int     fillRecur    = getIntOrDefault(args, 6, 1);
+
+            BlendBallBrush blend   = new BlendBallBrush();
+            ErosionBrush   erosion = new ErosionBrush(erosionFaces, eresionRecur, fillFaces, fillRecur);
+            
+            BrushTool tool = getTool(player, session);
+            tool.setFill(null);
+            tool.setSize(3);
+            tool.setBrush(new BlendBallErosion(blend, erosion, blendradius), "worldedit.brush.erosion");
+
+            print(player, "BlendBallErosion",
+                  " Size:"         + size
+                + " BlendSize:"    + (size + blendradius)
+                + " erosionFaces:" + erosionFaces
+                + " eresionRecur:" + eresionRecur
+                + " fillFaces:"    + fillFaces
+                + " fillRecur:"    + fillRecur);
+        }
+    }
+    
+    public static class LoadOverlay extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern mat = getPatternOrdefault(session, player, args, 1, BlockTypes.DIRT.getDefaultState());
+            int   depth = getIntOrDefault(args, 2, 3);
+            
+            BrushTool tool = getTool(player, session);
+            tool.setFill(mat);
+            tool.setSize(3);
+            tool.setBrush(new OverlayBrush(depth), "worldedit.brush.over");
+
+            print(player, "Overlay",
+                  " Size:"     + 3
+                + " depth:"    + depth
+                + " mat:"      + format(mat));
         }
     }
     
