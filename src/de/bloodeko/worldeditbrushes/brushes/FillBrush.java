@@ -16,6 +16,11 @@ import com.sk89q.worldedit.world.block.BlockTypes;
 import de.bloodeko.worldeditbrushes.ShapeCycler;
 import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
 
+/**
+ * Fills Terrain based required faces and iterations. <br>
+ * Similar to /cs build fill from CraftSripts. <br>
+ * Use size:2 faces:2 iterations:1 for finer path creation. 
+ */
 public class FillBrush implements Brush {
     
     @SuppressWarnings("unused")

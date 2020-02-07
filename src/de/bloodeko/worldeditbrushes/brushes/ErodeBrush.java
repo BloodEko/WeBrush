@@ -15,7 +15,9 @@ import de.bloodeko.worldeditbrushes.ShapeCycler;
 import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
 
 /**
- * Erodes Terrain away.
+ * Erodes Terrain away based on faces and iterations. <br>
+ * Similar to /cs build erode from CraftSripts. <br>
+ * Use size:2 faces:2 iterations:1 for finer path creation. 
  */
 public class ErodeBrush implements Brush {
     

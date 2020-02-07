@@ -14,6 +14,18 @@ import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldedit.world.registry.BlockMaterial;
 
+/**
+ * Performs an eroding/filling erosion on the terrain.
+ * Similar to /b e from VoxelSniper.
+ * 
+ * <pre>
+ * Melt     = 2, 1, 5, 1
+ * Fill     = 5, 1, 2, 1
+ * Smooth   = 3, 1, 3, 1
+ * LiftUp   = 6, 0, 1, 1
+ * LiftDown = 1, 1, 6, 0
+ * <pre>
+ */
 public class ErosionBrush implements Brush {
 
     private static final BlockVector3[] FACES_TO_CHECK = {

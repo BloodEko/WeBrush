@@ -37,19 +37,20 @@ public class DispatchLayer {
     public static Map<String, BrushLoader> brushes = new HashMap<>();
     
     static {
+        //craftscripts
         brushes.put("erode",   new LoadErode());
         brushes.put("fill",    new LoadFill());
-        
         brushes.put("vine",    new LoadVine());
         
-        brushes.put("test",    new LoadTest());
-        
-        brushes.put("cube",    new LoadCube());
-        
+        //voxelsniper
         brushes.put("bb",      new LoadBlendBall());
         brushes.put("erosion", new LoadErosion());
         brushes.put("ebb",     new LoadBlendballErosion());
         brushes.put("over",    new LoadOverlay());
+        
+        //own
+        brushes.put("test",    new LoadTest());
+        brushes.put("cube",    new LoadCube());
     }
     
     

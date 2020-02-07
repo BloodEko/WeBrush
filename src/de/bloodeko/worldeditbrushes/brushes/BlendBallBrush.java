@@ -10,6 +10,11 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 
+/**
+ * Smooths terrain. Similar to /b bb from VoxelSniper.
+ * 
+ * Todo: debug
+ */
 public class BlendBallBrush implements Brush {
 
     private final int WORLD_HEIGHT = 256;

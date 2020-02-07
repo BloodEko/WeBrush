@@ -18,15 +18,11 @@ import de.bloodeko.worldeditbrushes.ShapeCycler;
 import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
 
 /**
- * Places hanging vines.
- * 
- * In old versions of WE/craftscripts session.setBlock() did instantly set the block instead all at once later on?
- * Well I found it out the hard way, debugging a complex function, which was build up with checks on the set blocks... lol
+ * Places hanging Vines by a length and density from 0.0 to 1.0. <br>
+ * Similar to /cs build vines from CraftScripts.
  * 
  * 
- * TEST brush to build a single vine with length of 10. Does that work?
- * > if not bug we-guys how to disable physics
- * 
+ * Todo: debug
  */
 public class VineBrush implements Brush {
 

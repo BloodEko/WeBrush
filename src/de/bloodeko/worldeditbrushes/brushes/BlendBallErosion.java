@@ -6,7 +6,10 @@ import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 
-
+/**
+ * Performs an erosion and smoothing operation in one. <br>
+ * The blendradius will be added to the size, 1 seems to have best results.
+ */
 public class BlendBallErosion implements Brush {
 
     private BlendBallBrush blendBrush;

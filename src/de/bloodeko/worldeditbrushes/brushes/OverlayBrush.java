@@ -8,6 +8,12 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.registry.BlockMaterial;
 
+/**
+ * Replaces existing blocks by a specific depth. <br>
+ * Similar to /b over d3 from VoxelSniper.
+ * 
+ * Todo: refactor
+ */
 public class OverlayBrush implements Brush {
 
     private final int depth;

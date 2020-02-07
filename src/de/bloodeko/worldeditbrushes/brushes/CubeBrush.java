@@ -6,6 +6,12 @@ import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 
+/**
+ * Creates an cube or sphere.
+ * It will be more precisely for smaller sizes.
+ * 
+ * Todo: debug
+ */
 public class CubeBrush implements Brush {
 
     private final int     width;
