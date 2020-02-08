@@ -14,12 +14,12 @@ public class BlendBallErosion implements Brush {
 
     private BlendBallBrush blendBrush;
     private ErosionBrush   erosionBrush;
-    private int            blendradius;
+    private int            blendEdge;
     
-    public BlendBallErosion(BlendBallBrush blend, ErosionBrush erosion, int blendradius) {
+    public BlendBallErosion(BlendBallBrush blend, ErosionBrush erosion, int blendEdge) {
         this.blendBrush   = blend;
         this.erosionBrush = erosion;
-        this.blendradius  = blendradius;
+        this.blendEdge    = blendEdge;
     }
     
     @Override
@@ -29,7 +29,7 @@ public class BlendBallErosion implements Brush {
         erosionBrush.build(session, position, pattern, size);
         session.flushSession();
         
-        blendBrush.build(session, position, pattern, size + blendradius);
+        blendBrush.build(session, position, pattern, size + blendEdge);
     }
     
 }

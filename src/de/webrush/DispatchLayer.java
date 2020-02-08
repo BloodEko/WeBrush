@@ -115,7 +115,7 @@ public class DispatchLayer {
     public static class LoadBlendballErosion extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int blendradius  = getIntOrDefault(args, 1, 1);
+            int blendEdge    = getIntOrDefault(args, 1, 1);
             int erosionFaces = getIntOrDefault(args, 2, 6);
             int eresionRecur = getIntOrDefault(args, 3, 0);
             int fillFaces    = getIntOrDefault(args, 4, 1);
@@ -126,8 +126,8 @@ public class DispatchLayer {
             ErosionBrush   erosion = new ErosionBrush(erosionFaces, eresionRecur, fillFaces, fillRecur);
             
             initBrush(player, session, null, size,
-                      new BlendBallErosion(blend, erosion, blendradius), "worldedit.brush.erosion", "BlendBallErosion",
-                    " BlendSize:"    + (size + blendradius)
+                      new BlendBallErosion(blend, erosion, blendEdge), "worldedit.brush.erosion", "BlendBallErosion",
+                    " BlendEdge:"    + blendEdge
                   + " erosionFaces:" + erosionFaces
                   + " eresionRecur:" + eresionRecur
                   + " fillFaces:"    + fillFaces
