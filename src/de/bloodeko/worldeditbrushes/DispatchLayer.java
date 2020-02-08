@@ -12,6 +12,7 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.command.tool.BrushTool;
 import com.sk89q.worldedit.command.tool.InvalidToolBindException;
+import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.extension.factory.parser.pattern.SingleBlockPatternParser;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
@@ -32,7 +33,6 @@ import de.bloodeko.worldeditbrushes.brushes.TestBrush;
 import de.bloodeko.worldeditbrushes.brushes.VineBrush;
 import net.md_5.bungee.api.ChatColor;
 
-
 public class DispatchLayer {
   
     public static Map<String, BrushLoader> brushes = new HashMap<>();
@@ -45,8 +45,8 @@ public class DispatchLayer {
         
         //voxelsniper
         brushes.put("bb",      new LoadBlendBall());
-        brushes.put("erosion", new LoadErosion());
         brushes.put("ebb",     new LoadBlendballErosion());
+        brushes.put("erosion", new LoadErosion());
         brushes.put("over",    new LoadOverlay());
         
         //own
@@ -55,44 +55,33 @@ public class DispatchLayer {
         brushes.put("sphere",  new LoadPreciseSphere());
     }
     
+    //
+    // CraftScripts
+    //
     
     public static class LoadErode extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int size       = getIntOrDefault(args, 1, 2);
-            int maxFaces   = getIntOrDefault(args, 2, 2);
-            int iterations = getIntOrDefault(args, 3, 1);
+            int maxFaces   = getIntOrDefault(args, 1, 2);
+            int iterations = getIntOrDefault(args, 2, 1);
             
-            checkSize(size);
-            BrushTool tool = getTool(player, session);
-            
-            tool.setFill(null);
-            tool.setSize(size);
-            tool.setBrush(new ErodeBrush(iterations, maxFaces), "worldedit.brush.erode");
-            print(player, "Erode",
-                " Size:"       + size
-              + " Iterations:" + iterations
-              + " MaxFaces:"   + maxFaces);
+            initBrush(player, session, null, 2, 
+                      new ErodeBrush(iterations, maxFaces), "worldedit.brush.erode", "Erode",
+                    " Iterations:" + iterations
+                  + " MaxFaces:"   + maxFaces);
         }
     }
     
     public static class LoadFill extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int size       = getIntOrDefault(args, 1, 2);
-            int maxFaces   = getIntOrDefault(args, 2, 2);
-            int iterations = getIntOrDefault(args, 3, 1);
+            int maxFaces   = getIntOrDefault(args, 1, 2);
+            int iterations = getIntOrDefault(args, 2, 1);
             
-            checkSize(size);
-            BrushTool tool = getTool(player, session);
-            
-            tool.setFill(null);
-            tool.setSize(size);
-            tool.setBrush(new FillBrush(iterations, maxFaces), "worldedit.brush.fill");
-            print(player, "Fill",
-                " Size:"       + size
-              + " Iterations:" + iterations
-              + " MaxFaces:"   + maxFaces);
+            initBrush(player, session, null, 2, 
+                      new FillBrush(iterations, maxFaces), "worldedit.brush.fill", "Fill",
+                    " Iterations:" + iterations
+                  + " MaxFaces:"   + maxFaces);
         }
     }
     
@@ -100,156 +89,122 @@ public class DispatchLayer {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
             Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.VINE.getDefaultState());
-            int     size    = getIntOrDefault(args, 2, 5);
-            double  chance  = getDoubleOrDefault(args, 3, 0.5);
-            int     length  = getIntOrDefault(args, 4, 5);
+            double  chance  = getDoubleOrDefault(args, 2, 0.5);
+            int     length  = getIntOrDefault(args, 3, 5);
             
-            checkSize(size);
-            BrushTool tool = getTool(player, session);
-            
-            tool.setFill(pattern);
-            tool.setSize(size);
-            tool.setBrush(new VineBrush(chance, length), "worldedit.brush.vine");
-
-            print(player, "Vine",
-                " Mat:"    + format(pattern)
-              + " Size:"   + size
-              + " Chance:" + chance
-              + " Length:" + length);
+            initBrush(player, session, pattern, 5,
+                      new VineBrush(chance, length), "worldedit.brush.vine", "Vine",
+                    " Mat:"    + format(pattern)
+                  + " Chance:" + chance
+                  + " Length:" + length);
         }
     }
     
-    public static class LoadTest extends BaseLoader {
-        
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-            int     size    = getIntOrDefault(args, 2, 5);
-            
-            checkSize(size);
-            BrushTool tool = getTool(player, session);
-
-            tool.setFill(pattern);
-            tool.setSize(size);
-            tool.setBrush(new TestBrush(), "worldedit.brush.test");
-
-            print(player, "Test",
-                " Mat:"  + format(pattern)
-              + " Size:" + size);
-        }
-    }
-    
-    public static class LoadCube extends BaseLoader {
-        
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            
-            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-            BrushTool tool    = getTool(player, session);
-            tool.setFill(pattern);
-            tool.setSize(5);
-            tool.setBrush(new CubeBrush(), "worldedit.brush.cube");
-
-            print(player, "Cube",
-                " Mat:"  + format(pattern));
-        }
-    }
-    
-    public static class LoadPreciseSphere extends BaseLoader {
-
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            
-            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-            BrushTool tool    = getTool(player, session);
-            tool.setFill(pattern);
-            tool.setSize(5);
-            tool.setBrush(new PreciseSphereBrush(), "worldedit.brush.sphere");
-
-            print(player, "Sphere",
-                " Mat:"  + format(pattern));
-        }
-    }
+    //
+    // VoxelSniper
+    //
     
     public static class LoadBlendBall extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            BrushTool tool = getTool(player, session);
-
-            tool.setFill(null);
-            tool.setSize(3);
-            tool.setBrush(new BlendBallBrush(), "worldedit.brush.blendball");
-
-            print(player, "BlendBall",
-                " Size:"      + 5);
-        }
-    }
-    
-    public static class LoadErosion extends BaseLoader {
-        
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int     size         = getIntOrDefault(args, 1, 5);
-            int     erosionFaces = getIntOrDefault(args, 2, 6);
-            int     eresionRecur = getIntOrDefault(args, 3, 0);
-            int     fillFaces    = getIntOrDefault(args, 4, 1);
-            int     fillRecur    = getIntOrDefault(args, 5, 1);
-            
-            BrushTool tool = getTool(player, session);
-            tool.setFill(null);
-            tool.setSize(3);
-            tool.setBrush(new ErosionBrush(erosionFaces, eresionRecur, fillFaces, fillRecur), "worldedit.brush.erosion");
-
-            print(player, "Erosion",
-                  " Size:"         + size
-                + " erosionFaces:" + erosionFaces
-                + " eresionRecur:" + eresionRecur
-                + " fillFaces:"    + fillFaces
-                + " fillRecur:"    + fillRecur);
+            initBrush(player, session, null, 5, 
+                      new BlendBallBrush(), "worldedit.brush.blendball", "BlendBall", "");
         }
     }
     
     public static class LoadBlendballErosion extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int     size         = getIntOrDefault(args, 1, 5);
-            int     blendradius  = getIntOrDefault(args, 2, 1);
-            int     erosionFaces = getIntOrDefault(args, 3, 6);
-            int     eresionRecur = getIntOrDefault(args, 4, 0);
-            int     fillFaces    = getIntOrDefault(args, 5, 1);
-            int     fillRecur    = getIntOrDefault(args, 6, 1);
+            int blendradius  = getIntOrDefault(args, 1, 1);
+            int erosionFaces = getIntOrDefault(args, 2, 6);
+            int eresionRecur = getIntOrDefault(args, 3, 0);
+            int fillFaces    = getIntOrDefault(args, 4, 1);
+            int fillRecur    = getIntOrDefault(args, 5, 1);
+            int size         = 5;
 
             BlendBallBrush blend   = new BlendBallBrush();
             ErosionBrush   erosion = new ErosionBrush(erosionFaces, eresionRecur, fillFaces, fillRecur);
             
-            BrushTool tool = getTool(player, session);
-            tool.setFill(null);
-            tool.setSize(3);
-            tool.setBrush(new BlendBallErosion(blend, erosion, blendradius), "worldedit.brush.erosion");
-
-            print(player, "BlendBallErosion",
-                  " Size:"         + size
-                + " BlendSize:"    + (size + blendradius)
-                + " erosionFaces:" + erosionFaces
-                + " eresionRecur:" + eresionRecur
-                + " fillFaces:"    + fillFaces
-                + " fillRecur:"    + fillRecur);
+            initBrush(player, session, null, size,
+                      new BlendBallErosion(blend, erosion, blendradius), "worldedit.brush.erosion", "BlendBallErosion",
+                    " BlendSize:"    + (size + blendradius)
+                  + " erosionFaces:" + erosionFaces
+                  + " eresionRecur:" + eresionRecur
+                  + " fillFaces:"    + fillFaces
+                  + " fillRecur:"    + fillRecur);
         }
     }
+    
+    public static class LoadErosion extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            int erosionFaces = getIntOrDefault(args, 1, 6);
+            int eresionRecur = getIntOrDefault(args, 2, 0);
+            int fillFaces    = getIntOrDefault(args, 3, 1);
+            int fillRecur    = getIntOrDefault(args, 4, 1);
+            
+            ErosionBrush brush = new ErosionBrush(erosionFaces, eresionRecur, fillFaces, fillRecur);
+            
+            initBrush(player, session, null, 5, 
+                      brush, "worldedit.brush.erosion", "Erosion",
+                    " erosionFaces:" + erosionFaces
+                  + " eresionRecur:" + eresionRecur
+                  + " fillFaces:"    + fillFaces
+                  + " fillRecur:"    + fillRecur);
+        }
+    }
+    
     
     public static class LoadOverlay extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
             Pattern mat = getPatternOrdefault(session, player, args, 1, BlockTypes.DIRT.getDefaultState());
             int   depth = getIntOrDefault(args, 2, 3);
-            
-            BrushTool tool = getTool(player, session);
-            tool.setFill(mat);
-            tool.setSize(3);
-            tool.setBrush(new OverlayBrush(depth), "worldedit.brush.over");
-
-            print(player, "Overlay",
-                  " Size:"     + 3
-                + " depth:"    + depth
-                + " mat:"      + format(mat));
+                        
+            initBrush(player, session, mat, 5,
+                      new OverlayBrush(depth), "worldedit.brush.over", "Overlay",
+                    " Depth:" + depth 
+                  + " Mat:"   + format(mat));
         }
     }
+    
+    //
+    // Own
+    //
+    
+    public static class LoadTest extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+
+            initBrush(player, session, pattern, 5, 
+                      new TestBrush(), "worldedit.brush.test", "Test", 
+                    " Mat:"  + format(pattern));
+        }
+    }
+    
+    public static class LoadCube extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {          
+            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+
+            initBrush(player, session, pattern, 5, 
+                      new CubeBrush(), "worldedit.brush.cube", "Cube", 
+                    " Mat:" + format(pattern));
+        }
+    }
+    
+    public static class LoadPreciseSphere extends BaseLoader {
+
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            
+            initBrush(player, session, pattern, 5,
+                      new PreciseSphereBrush(), "worldedit.brush.sphere", "Sphere",  
+                    " Mat:" + format(pattern));
+        }
+    }
+    
     
     
     public static interface BrushLoader {
@@ -263,13 +218,16 @@ public class DispatchLayer {
             return args.length > i ? Boolean.parseBoolean(args[i]) : or;
         }
         
+        
         public int getIntOrDefault(String[] args, int index, int or) {
             return args.length > index ? Integer.parseInt(args[index]) : or;
         }
         
+        
         public double getDoubleOrDefault(String[] args, int index, double or) {
             return args.length > index ? Double.parseDouble(args[index]) : or;
         }
+        
         
         public Pattern getPatternOrdefault(LocalSession session, BukkitPlayer player, String[] args, int index, Pattern or) throws InputParseException {
             if (args.length <= index) {
@@ -283,22 +241,44 @@ public class DispatchLayer {
             return parser.parseFromInput(args[index], context);
         }
         
+        
         public void checkSize(double size) throws MaxBrushRadiusException {
             WorldEdit.getInstance().checkMaxBrushRadius(size);
         }
+        
+        
+        public void initBrush(BukkitPlayer player, LocalSession session, Pattern pattern, double size,
+                              Brush brush, String permission, String brushname, 
+                              String brushdebug) throws InvalidToolBindException, MaxBrushRadiusException {
+            
+            checkSize(size);
+            BrushTool tool = getTool(player, session);
+            tool.setFill(pattern);
+            tool.setSize(size);
+            tool.setBrush(brush, permission);
+            sendInfo(player, size, brushname, brushdebug);
+        }
+        
         
         public BrushTool getTool(BukkitPlayer player, LocalSession session) throws InvalidToolBindException {
             return session.getBrushTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
         }
         
-        public void print(BukkitPlayer player, String name, String message) {
-            player.printInfo(TextComponent.of(ChatColor.LIGHT_PURPLE + "Set " + name + "brush. " + message));
+        
+        public void sendInfo(BukkitPlayer player, double brushsize, String brushname, String debug) {
+            ChatColor color = ChatColor.LIGHT_PURPLE;
+            String    name  = "Set "   +       brushname;
+            String    size  = "brush(" + (int) brushsize + ")";
+            
+            player.printInfo(TextComponent.of(color + name + size + debug));
         }
+        
         
         public String format(Pattern pattern) {
             return StringUtils.substringAfter(pattern.toString(), "minecraft:");
         }
 
+        
         @Override
         public abstract void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException;
     }
