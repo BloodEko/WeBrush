@@ -1,5 +1,5 @@
-name: WorldEditBrushes
-main: de.bloodeko.worldeditbrushes.WorldEditBrushes
+name: WeBrush
+main: de.webrush.WeBrush
 version: 1.0
 depend: [WorldEdit]
 commands:

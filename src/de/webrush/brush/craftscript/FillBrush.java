@@ -1,4 +1,4 @@
-package de.bloodeko.worldeditbrushes.brushes;
+package de.webrush.brush.craftscript;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,8 +13,8 @@ import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-import de.bloodeko.worldeditbrushes.ShapeCycler;
-import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
+import de.webrush.ShapeCycler;
+import de.webrush.ShapeCycler.BrushFunction;
 
 /**
  * Fills Terrain based required faces and iterations. <br>

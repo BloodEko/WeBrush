@@ -1,4 +1,4 @@
-package de.bloodeko.worldeditbrushes.brushes;
+package de.webrush.brush.voxelsniper;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;

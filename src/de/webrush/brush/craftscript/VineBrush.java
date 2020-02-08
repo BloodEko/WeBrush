@@ -1,4 +1,4 @@
-package de.bloodeko.worldeditbrushes.brushes;
+package de.webrush.brush.craftscript;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,8 +14,8 @@ import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-import de.bloodeko.worldeditbrushes.ShapeCycler;
-import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
+import de.webrush.ShapeCycler;
+import de.webrush.ShapeCycler.BrushFunction;
 
 /**
  * Places hanging Vines by a length and density from 0.0 to 1.0. <br>

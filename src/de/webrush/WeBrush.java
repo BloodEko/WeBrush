@@ -1,4 +1,4 @@
-package de.bloodeko.worldeditbrushes;
+package de.webrush;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +15,11 @@ import com.sk89q.worldedit.MaxRadiusException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
-import de.bloodeko.worldeditbrushes.DispatchLayer.BrushLoader;
+import de.webrush.DispatchLayer.BrushLoader;
 import net.md_5.bungee.api.ChatColor;
 
 
-public class WorldEditBrushes extends JavaPlugin implements CommandExecutor, TabCompleter {
+public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter {
      
     WorldEditPlugin worldEditPlugin;
     static boolean  debug;

@@ -1,4 +1,4 @@
-package de.bloodeko.worldeditbrushes.brushes;
+package de.webrush.brush.own;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,8 @@ import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 
-import de.bloodeko.worldeditbrushes.ShapeCycler;
-import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
+import de.webrush.ShapeCycler;
+import de.webrush.ShapeCycler.BrushFunction;
 
 /**
  * An more precise sphere brush.

@@ -1,4 +1,4 @@
-package de.bloodeko.worldeditbrushes.brushes;
+package de.webrush.brush.voxelsniper;
 
 import java.util.HashMap;
 import java.util.Map;

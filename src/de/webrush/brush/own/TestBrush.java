@@ -1,4 +1,4 @@
-package de.bloodeko.worldeditbrushes.brushes;
+package de.webrush.brush.own;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,8 +10,8 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-import de.bloodeko.worldeditbrushes.ShapeCycler;
-import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
+import de.webrush.ShapeCycler;
+import de.webrush.ShapeCycler.BrushFunction;
 
 
 public class TestBrush implements Brush {

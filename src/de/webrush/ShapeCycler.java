@@ -1,4 +1,4 @@
-package de.bloodeko.worldeditbrushes;
+package de.webrush;
 
 import com.sk89q.worldedit.math.BlockVector3;
 
@@ -236,7 +236,7 @@ public class ShapeCycler {
             }
         }
         
-        if (WorldEditBrushes.debug) {
+        if (WeBrush.debug) {
             System.out.println("bx:" + bx);
             System.out.println("by:" + by);
             System.out.println("bz:" + bz);

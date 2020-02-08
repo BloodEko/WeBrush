@@ -1,4 +1,4 @@
-package de.bloodeko.worldeditbrushes;
+package de.webrush;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,16 +21,16 @@ import com.sk89q.worldedit.util.HandSide;
 import com.sk89q.worldedit.util.formatting.text.TextComponent;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-import de.bloodeko.worldeditbrushes.brushes.BlendBallBrush;
-import de.bloodeko.worldeditbrushes.brushes.BlendBallErosion;
-import de.bloodeko.worldeditbrushes.brushes.CubeBrush;
-import de.bloodeko.worldeditbrushes.brushes.ErodeBrush;
-import de.bloodeko.worldeditbrushes.brushes.ErosionBrush;
-import de.bloodeko.worldeditbrushes.brushes.FillBrush;
-import de.bloodeko.worldeditbrushes.brushes.OverlayBrush;
-import de.bloodeko.worldeditbrushes.brushes.PreciseSphereBrush;
-import de.bloodeko.worldeditbrushes.brushes.TestBrush;
-import de.bloodeko.worldeditbrushes.brushes.VineBrush;
+import de.webrush.brush.craftscript.ErodeBrush;
+import de.webrush.brush.craftscript.FillBrush;
+import de.webrush.brush.craftscript.VineBrush;
+import de.webrush.brush.own.CubeBrush;
+import de.webrush.brush.own.PreciseSphereBrush;
+import de.webrush.brush.own.TestBrush;
+import de.webrush.brush.voxelsniper.BlendBallBrush;
+import de.webrush.brush.voxelsniper.BlendBallErosion;
+import de.webrush.brush.voxelsniper.ErosionBrush;
+import de.webrush.brush.voxelsniper.OverlayBrush;
 import net.md_5.bungee.api.ChatColor;
 
 public class DispatchLayer {
