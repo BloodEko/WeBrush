@@ -27,6 +27,7 @@ import de.bloodeko.worldeditbrushes.brushes.ErodeBrush;
 import de.bloodeko.worldeditbrushes.brushes.ErosionBrush;
 import de.bloodeko.worldeditbrushes.brushes.FillBrush;
 import de.bloodeko.worldeditbrushes.brushes.OverlayBrush;
+import de.bloodeko.worldeditbrushes.brushes.PreciseSphereBrush;
 import de.bloodeko.worldeditbrushes.brushes.TestBrush;
 import de.bloodeko.worldeditbrushes.brushes.VineBrush;
 import net.md_5.bungee.api.ChatColor;
@@ -51,6 +52,7 @@ public class DispatchLayer {
         //own
         brushes.put("test",    new LoadTest());
         brushes.put("cube",    new LoadCube());
+        brushes.put("sphere",  new LoadPreciseSphere());
     }
     
     
@@ -139,21 +141,30 @@ public class DispatchLayer {
     public static class LoadCube extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            Pattern pattern   = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-            int     width     = getIntOrDefault(args, 2, 5);
-            boolean spherical = getBooleanOrDefault(args, 3, false);
             
-            checkSize(width);
-            BrushTool tool = getTool(player, session);
-
+            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            BrushTool tool    = getTool(player, session);
             tool.setFill(pattern);
-            tool.setSize(width);
-            tool.setBrush(new CubeBrush(width, spherical), "worldedit.brush.test");
+            tool.setSize(5);
+            tool.setBrush(new CubeBrush(), "worldedit.brush.cube");
 
             print(player, "Cube",
-                " Mat:"       + format(pattern)
-              + " Width:"     + width
-              + " Spherical:" + spherical);
+                " Mat:"  + format(pattern));
+        }
+    }
+    
+    public static class LoadPreciseSphere extends BaseLoader {
+
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            
+            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            BrushTool tool    = getTool(player, session);
+            tool.setFill(pattern);
+            tool.setSize(5);
+            tool.setBrush(new PreciseSphereBrush(), "worldedit.brush.sphere");
+
+            print(player, "Sphere",
+                " Mat:"  + format(pattern));
         }
     }
     

@@ -7,32 +7,23 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 
 /**
- * Creates an cube or sphere.
- * It will be more precisely for smaller sizes.
- * 
- * Todo: debug
+ * Creates an precise cube with an volume of size³.
  */
 public class CubeBrush implements Brush {
-
-    private final int     width;
-    private final boolean spherical;
     
-    public CubeBrush(int width, boolean spherical) {
-        this.width  = width;
-        this.spherical = spherical;
-    }
-
     @Override
-    public void build(EditSession session, BlockVector3 middle, Pattern pattern, double size)
+    public void build(EditSession session, BlockVector3 pos, Pattern pattern, double size)
             throws MaxChangedBlocksException {
         
-        int startX = middle.getX() - width / 2;
-        int startY = middle.getY() - width / 2;
-        int startZ = middle.getZ() - width / 2;
+        int width = (int) size;
         
-        int endX   = middle.getX() + width / 2;
-        int endY   = middle.getY() + width / 2;
-        int endZ   = middle.getZ() + width / 2;
+        int startX = pos.getX() - width / 2;
+        int startY = pos.getY() - width / 2;
+        int startZ = pos.getZ() - width / 2;
+        
+        int endX   = pos.getX() + width / 2;
+        int endY   = pos.getY() + width / 2;
+        int endZ   = pos.getZ() + width / 2;
         
         if (width % 2 == 1) {
             endX++;
@@ -43,21 +34,7 @@ public class CubeBrush implements Brush {
         for (int x = startX; x < endX; x++) {
             for (int y = startY; y < endY; y++) {
                 for (int z = startZ; z < endZ; z++) {
-                    BlockVector3 vec = BlockVector3.at(x, y, z);
-                    
-                    if (spherical) {
-                        double dx   = middle.getX() - x;
-                        double dy   = middle.getY() - y;
-                        double dz   = middle.getZ() - z;
-                        double mul  = dx*dx + dy*dy + dz*dz;
-                        double sqrt = Math.sqrt(mul);
-                        
-                        if (sqrt <= (size/2)) {
-                            session.setBlock(vec, pattern);
-                        }
-                        continue;
-                    }
-                    session.setBlock(vec, pattern);
+                    session.setBlock(BlockVector3.at(x, y, z), pattern);
                 }
             }
         }
