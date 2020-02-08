@@ -1,8 +1,12 @@
 package de.bloodeko.worldeditbrushes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -15,7 +19,7 @@ import de.bloodeko.worldeditbrushes.DispatchLayer.BrushLoader;
 import net.md_5.bungee.api.ChatColor;
 
 
-public class WorldEditBrushes extends JavaPlugin implements CommandExecutor {
+public class WorldEditBrushes extends JavaPlugin implements CommandExecutor, TabCompleter {
      
     WorldEditPlugin worldEditPlugin;
     static boolean  debug;
@@ -23,7 +27,23 @@ public class WorldEditBrushes extends JavaPlugin implements CommandExecutor {
     @Override
     public void onEnable() {
         this.getCommand("webrush").setExecutor(this);
+        this.getCommand("webrush").setTabCompleter(this);
         worldEditPlugin = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length != 1) {
+            return null;
+        }
+        
+        List<String> list = new ArrayList<>();
+        for (String key : DispatchLayer.brushes.keySet()) {
+            if (key.startsWith(args[0])) {
+                list.add(key);
+            }
+        }
+        return list;
     }
     
     @Override
