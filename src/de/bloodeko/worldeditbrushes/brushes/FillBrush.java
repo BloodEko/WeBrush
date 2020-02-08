@@ -23,13 +23,13 @@ import de.bloodeko.worldeditbrushes.ShapeCycler.BrushFunction;
  */
 public class FillBrush implements Brush {
     
+    private final int maxFaces;
     @SuppressWarnings("unused")
     private final int iterations;
-    private final int maxFaces;
     
-    public FillBrush(int iterations, int maxFaces) {
-        this.iterations = iterations;
+    public FillBrush(int maxFaces, int iterations) {
         this.maxFaces   = maxFaces;
+        this.iterations = iterations;
     }
     
     

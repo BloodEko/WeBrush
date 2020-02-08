@@ -66,9 +66,9 @@ public class DispatchLayer {
             int iterations = getIntOrDefault(args, 2, 1);
             
             initBrush(player, session, null, 2, 
-                      new ErodeBrush(iterations, maxFaces), "worldedit.brush.erode", "Erode",
-                    " Iterations:" + iterations
-                  + " MaxFaces:"   + maxFaces);
+                      new ErodeBrush(maxFaces, iterations), "worldedit.brush.erode", "Erode",
+                    " MaxFaces:"   + maxFaces
+                  + " Iterations:" + iterations);
         }
     }
     
@@ -79,9 +79,9 @@ public class DispatchLayer {
             int iterations = getIntOrDefault(args, 2, 1);
             
             initBrush(player, session, null, 2, 
-                      new FillBrush(iterations, maxFaces), "worldedit.brush.fill", "Fill",
-                    " Iterations:" + iterations
-                  + " MaxFaces:"   + maxFaces);
+                      new FillBrush(maxFaces, iterations), "worldedit.brush.fill", "Fill",
+                    " MaxFaces:"   + maxFaces
+                  + " Iterations:" + iterations);
         }
     }
     
