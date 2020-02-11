@@ -5,21 +5,29 @@ import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldedit.world.registry.BlockMaterial;
 
 /**
  * Replaces existing blocks by a specific depth. <br>
- * Similar to /b over d3 from VoxelSniper.
- * 
+ * Similar to /b over d3 from VoxelSniper. <br>
+ * <br>
+ * Specify natural to overlay with dirt and grass simultaneously.
+ * <br>
  * Todo: refactor
  */
 public class OverlayBrush implements Brush {
 
-    private final int depth;
+    private final BlockState grassblock = BlockTypes.GRASS_BLOCK.getDefaultState();
     
-    public OverlayBrush(int depth) {
-        this.depth = depth;
+    private final int     depth;
+    private final boolean natural;
+    
+    public OverlayBrush(int depth , boolean natural) {
+        this.depth   = depth;
+        this.natural = natural;
     }
     
     @Override
@@ -49,6 +57,10 @@ public class OverlayBrush implements Brush {
                             {
                                 for (int currentDepth = y; y - currentDepth < depth; currentDepth--)
                                 {
+                                    if (natural && y == currentDepth) { //top layer
+                                        session.setBlock(BlockVector3.at(pos.getX() + x, normalizeY(currentDepth), pos.getZ() + z), grassblock);
+                                        continue;
+                                    }
                                     final BlockType currentBlockId = session.getBlock(BlockVector3.at(pos.getX() + x, currentDepth, pos.getZ() + z)).getBlockType();
                                     if (isOverrideableMaterial(currentBlockId))
                                     {

@@ -158,13 +158,14 @@ public class DispatchLayer {
     public static class LoadOverlay extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            Pattern mat = getPatternOrdefault(session, player, args, 1, BlockTypes.DIRT.getDefaultState());
-            int   depth = getIntOrDefault(args, 2, 3);
-                        
+            boolean natural = isNatural(args, 1);
+            Pattern mat     = getPatternOrdefault(session, player, args, 1, BlockTypes.DIRT.getDefaultState());
+            int     depth   = getIntOrDefault(args, 2, 3);
+            
             initBrush(player, session, mat, 5,
-                      new OverlayBrush(depth), "worldedit.brush.over", "Overlay",
-                    " Depth:" + depth 
-                  + " Mat:"   + format(mat));
+                      new OverlayBrush(depth, natural), "worldedit.brush.over", "Overlay",
+                    " Mat:"   + (natural ? "natural" : format(mat))
+                  + " Depth:" + depth);
         }
     }
     
@@ -233,12 +234,20 @@ public class DispatchLayer {
             if (args.length <= index) {
                 return or;
             }
+            if (isNatural(args, index)) {
+                return or;
+            }
             SingleBlockPatternParser parser = new SingleBlockPatternParser(WorldEdit.getInstance());
             ParserContext context = new ParserContext();
             context.setActor(player);
             context.setWorld(player.getWorld());
             context.setSession(session);
             return parser.parseFromInput(args[index], context);
+        }
+        
+        
+        public boolean isNatural(String[] args, int index) {
+            return args.length > index && args[index].equals("n");
         }
         
         
