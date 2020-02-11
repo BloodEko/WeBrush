@@ -14,6 +14,7 @@ import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxRadiusException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.extension.input.NoMatchException;
 
 import de.webrush.DispatchLayer.BrushLoader;
 import net.md_5.bungee.api.ChatColor;
@@ -81,6 +82,12 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
         }
         catch (MaxRadiusException ex) {
             player.sendMessage(ChatColor.RED + "Brush size is too big. Check WE config.");
+        }
+        catch(NoMatchException ex) {
+            player.sendMessage(ChatColor.RED + "Can't find material: " + ex.getMessage());
+        }
+        catch (NumberFormatException ex) {
+            player.sendMessage(ChatColor.RED + "Could not parse to number: " + ex.getMessage());
         }
         catch (Exception ex) {
             player.sendMessage(ChatColor.RED + "Exception found. Check console...");
