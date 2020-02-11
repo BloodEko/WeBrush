@@ -19,10 +19,11 @@ import de.webrush.ShapeCycler.BrushFunction;
 
 /**
  * Places hanging Vines by a length and density from 0.0 to 1.0. <br>
- * Similar to /cs build vines from CraftScripts.
+ * Similar to /cs build vines from CraftScripts. <br>
+ * <br>
  * 
- * 
- * Todo: debug
+ * Use //fast mode to place vines without breaking. <br>
+ * Todo: Reimplement
  */
 public class VineBrush implements Brush {
 
@@ -45,13 +46,9 @@ public class VineBrush implements Brush {
 
             BlockVector3 pos    = BlockVector3.at(x, y, z);
             BlockState curBlock = session.getBlock(pos);
-
-            System.out.println("x:" + x + " y:" + y + " z:" + z);
-            System.out.println(curBlock.getBlockType()  + "  != "  + BlockTypes.AIR);
             
             if (Math.random() > density) return;
             if (curBlock.getBlockType() != BlockTypes.AIR || marked.contains(pos)) return;
-            //System.out.println("match first!");
             
 
             BlockState[] vines = new BlockState[4];
@@ -68,37 +65,26 @@ public class VineBrush implements Brush {
 
             List<Integer> solidSide = new ArrayList<>();
             for (int i = 0; i < 4; i++) {
-                
-                System.out.println("i:" + i + " x:" + x + " y:" + y + " z:" + z + " " + blockFaces[i] + "  " + (!blockFaces[i].getMaterial().isSolid()) + " ODER " + blockFaces[i] + " == " + mat.apply(BlockVector3.at(0,0,0)).getBlockType());
-                
                 if (!blockFaces[i].getMaterial().isSolid() || blockFaces[i] == mat.apply(BlockVector3.at(0,0,0)).getBlockType()) {
                     continue;
                 }
                 if (blockFaces[i] != BlockTypes.AIR) {
                     solidSide.add(i);
-                    //System.out.println("add!" + i);
                 }                                             
             }
             if ((solidSide.size() >= 1)) {
-                //System.out.println("match SolidSize!");
                 int randomSide   = solidSide.get(rand.nextInt(solidSide.size()));
-                int randomLength = length;
+                int randomLength = rand.nextInt(length);
                 
                 BlockState newVine = vines[randomSide];
                 for (int extendVine = 0; extendVine <= randomLength; extendVine++) {
                     if (session.getBlock(pos.add(0,-(extendVine),0)).getBlockType() == BlockTypes.AIR) {
-                        
                         try {
                             if (mat.apply(BlockVector3.at(0, 0, 0)).getBlockType() == BlockTypes.VINE) {
-                                
-                                System.out.println("before1:" +  session.getBlock(pos.add(0,-(extendVine),0)));
                                 session.setBlock(pos.add(0,-(extendVine),0), newVine);
-                                System.out.println("after1:" +  session.getBlock(pos.add(0,-(extendVine),0)));
                             }
                             else {
-                                System.out.println("before2:" +  session.getBlock(pos.add(0,-(extendVine),0)));
                                 session.setBlock(pos.add(0,-(extendVine),0), mat);
-                                System.out.println("after2:" +  session.getBlock(pos.add(0,-(extendVine),0)));
                             }
                             marked.add(pos);
                         }
@@ -109,7 +95,6 @@ public class VineBrush implements Brush {
                     }
                     break;
                 }
-                //System.out.println("total:" + total);
             }
         };
         
