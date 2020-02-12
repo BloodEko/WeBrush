@@ -18,6 +18,8 @@ import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.util.HandSide;
+import com.sk89q.worldedit.util.TreeGenerator;
+import com.sk89q.worldedit.util.TreeGenerator.TreeType;
 import com.sk89q.worldedit.util.formatting.text.TextComponent;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
@@ -31,6 +33,7 @@ import de.webrush.brush.voxelsniper.BlendBallBrush;
 import de.webrush.brush.voxelsniper.BlendBallErosion;
 import de.webrush.brush.voxelsniper.ErosionBrush;
 import de.webrush.brush.voxelsniper.OverlayBrush;
+import de.webrush.brush.voxelsniper.TreeBrush;
 import net.md_5.bungee.api.ChatColor;
 
 public class DispatchLayer {
@@ -48,6 +51,7 @@ public class DispatchLayer {
         brushes.put("ebb",     new LoadBlendballErosion());
         brushes.put("erosion", new LoadErosion());
         brushes.put("over",    new LoadOverlay());
+        brushes.put("tree",    new TreeLoader());
         
         //own
         brushes.put("test",    new LoadTest());
@@ -169,6 +173,23 @@ public class DispatchLayer {
         }
     }
     
+    public static class TreeLoader extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            String   treename = getStringOrdefault(args, 1, "oak");
+            TreeType tree     = TreeGenerator.lookup(treename);
+            
+            if (tree == null) {
+                player.print(ChatColor.RED + "Tree not found: " + treename);
+                return;
+            }
+            
+            initBrush(player, session, null, 5,
+                      new TreeBrush(tree), "worldedit.brush.tree", "Tree",
+                    " Tree:" + treename);
+        }
+    }
+    
     //
     // Own
     //
@@ -215,8 +236,12 @@ public class DispatchLayer {
     
     public static abstract class BaseLoader implements BrushLoader {
 
-        public boolean getBooleanOrDefault(String[] args, int i, boolean or) {
-            return args.length > i ? Boolean.parseBoolean(args[i]) : or;
+        public String getStringOrdefault(String[] args, int index, String or) {
+            return args.length > index ? args[index] : or;
+        }
+        
+        public boolean getBooleanOrDefault(String[] args, int index, boolean or) {
+            return args.length > index ? Boolean.parseBoolean(args[index]) : or;
         }
         
         

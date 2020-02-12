@@ -1,6 +1,7 @@
 package de.webrush;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.command.Command;
@@ -15,6 +16,7 @@ import com.sk89q.worldedit.MaxRadiusException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.extension.input.NoMatchException;
+import com.sk89q.worldedit.util.TreeGenerator.TreeType;
 
 import de.webrush.DispatchLayer.BrushLoader;
 import net.md_5.bungee.api.ChatColor;
@@ -34,13 +36,24 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (args.length != 1) {
-            return null;
+        switch(args.length) {
+            case 1:
+                return filterList(DispatchLayer.brushes.keySet(), args[0]);
+            
+            case 2:
+                if (args[0].equals("tree")) {
+                    return filterList(TreeType.getPrimaryAliases(), args[1]);
+                }
+                
+            default:
+                return null;
         }
-        
+    }
+    
+    public List<String> filterList(Collection<? extends String> collection, String arg) {
         List<String> list = new ArrayList<>();
-        for (String key : DispatchLayer.brushes.keySet()) {
-            if (key.startsWith(args[0])) {
+        for (String key : collection) {
+            if (key.startsWith(arg)) {
                 list.add(key);
             }
         }
