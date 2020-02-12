@@ -22,7 +22,6 @@ import de.webrush.ShapeCycler.BrushFunction;
  * Similar to /cs build vines from CraftScripts. <br>
  * <br>
  * 
- * Use //fast mode to place vines without breaking. <br>
  * Todo: Reimplement
  */
 public class VineBrush implements Brush {
@@ -82,9 +81,11 @@ public class VineBrush implements Brush {
                         try {
                             if (mat.apply(BlockVector3.at(0, 0, 0)).getBlockType() == BlockTypes.VINE) {
                                 session.setBlock(pos.add(0,-(extendVine),0), newVine);
+                                session.flushSession();
                             }
                             else {
                                 session.setBlock(pos.add(0,-(extendVine),0), mat);
+                                session.flushSession();
                             }
                             marked.add(pos);
                         }
