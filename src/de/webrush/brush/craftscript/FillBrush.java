@@ -39,7 +39,7 @@ public class FillBrush implements Brush {
     }
     
     
-    private void makeFill(EditSession session, BlockVector3 vec, double size) throws MaxChangedBlocksException {
+    private void makeFill(EditSession session, BlockVector3 click, double size) throws MaxChangedBlocksException {
         
         // IS INT & BLOCKSTATE
         ArrayList<Object>     blocks    = new ArrayList<>();
@@ -48,9 +48,9 @@ public class FillBrush implements Brush {
         blackList.add(BlockTypes.WATER);
         blackList.add(BlockTypes.LAVA);
         
-        BrushFunction erode = (x, y, z, distance) -> {
+        BrushFunction erode = vec -> {
             
-            BlockState curBlockId = session.getBlock(BlockVector3.at(x, y, z));
+            BlockState curBlockId = session.getBlock(vec);
             if (!blackList.contains(curBlockId.getBlockType())) {
                 return;
             }
@@ -59,12 +59,12 @@ public class FillBrush implements Brush {
             BlockState[] blockFaces = new BlockState[6];
             MaxFace      maxFace    = new MaxFace();
 
-            blockFaces[0] = session.getBlock(BlockVector3.at(x+1,y,z));
-            blockFaces[1] = session.getBlock(BlockVector3.at(x-1,y,z));
-            blockFaces[2] = session.getBlock(BlockVector3.at(x,y,z+1));
-            blockFaces[3] = session.getBlock(BlockVector3.at(x,y,z-1));
-            blockFaces[4] = session.getBlock(BlockVector3.at(x,y+1,z));
-            blockFaces[5] = session.getBlock(BlockVector3.at(x,y-1,z));
+            blockFaces[0] = session.getBlock(vec.add(1,0,0));
+            blockFaces[1] = session.getBlock(vec.add(-1,0,0));
+            blockFaces[2] = session.getBlock(vec.add(0,0,1));
+            blockFaces[3] = session.getBlock(vec.add(0,0,-1));
+            blockFaces[4] = session.getBlock(vec.add(0,1,0));
+            blockFaces[5] = session.getBlock(vec.add(0,-1,0));
             
             Map<BlockType, Counter> faces = new HashMap<BlockType, Counter>();
             
@@ -90,20 +90,19 @@ public class FillBrush implements Brush {
             
 
             if (blockCnt >= maxFaces) {
-                blocks.add(x);
-                blocks.add(y);
-                blocks.add(z);
+                blocks.add(vec.getX());
+                blocks.add(vec.getY());
+                blocks.add(vec.getZ());
                 blocks.add(maxFace.block);
             }
         };
         
-        ShapeCycler cycler = new ShapeCycler(erode, size);
-        cycler.run(vec, null);
+        new ShapeCycler(erode, size).run(click);
         
         for (int i = 0; i < blocks.size(); i += 4) {
-            double     valx    = (double) blocks.get(i);
-            double     valy    = (double) blocks.get(i+1);
-            double     valz    = (double) blocks.get(i+2);
+            int     valx    = (int) blocks.get(i);
+            int     valy    = (int) blocks.get(i+1);
+            int     valz    = (int) blocks.get(i+2);
             BlockState valType = (BlockState) blocks.get(i+3);
             session.setBlock(BlockVector3.at(valx, valy, valz), valType);
         }

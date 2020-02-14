@@ -17,25 +17,23 @@ import de.webrush.ShapeCycler.BrushFunction;
 public class TestBrush implements Brush {
   
     @Override
-    public void build(EditSession session, BlockVector3 vec, Pattern pattern, double size) throws MaxChangedBlocksException {
+    public void build(EditSession session, BlockVector3 click, Pattern pattern, double size) throws MaxChangedBlocksException {
         ArrayList<BlockVector3> blocks = new ArrayList<>();
         
-        BrushFunction testbrush = (x, y, z, distance) -> {
-            BlockVector3 current = BlockVector3.at(x, y, z);
-            blocks.add(current);
+        BrushFunction testbrush = vec -> {
+            blocks.add(vec);
         };
         
-        ShapeCycler cycler = new ShapeCycler(testbrush, size);
-        cycler.run2(vec, true);
+        new ShapeCycler(testbrush, size).run(click);
         
         HashSet<BlockVector3> duplicates = new HashSet<>();
         
-        for (BlockVector3 pos : blocks) {
-            if (duplicates.contains(pos) ) {
-                session.setBlock(pos, BlockTypes.RED_WOOL.getDefaultState());
+        for (BlockVector3 temp : blocks) {
+            if (duplicates.contains(temp) ) {
+                session.setBlock(temp, BlockTypes.RED_WOOL.getDefaultState());
             } else {
-                session.setBlock(pos, pattern);
-                duplicates.add(pos);
+                session.setBlock(temp, pattern);
+                duplicates.add(temp);
             }
         }
     }

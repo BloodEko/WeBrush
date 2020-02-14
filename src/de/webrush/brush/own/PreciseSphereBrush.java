@@ -19,16 +19,16 @@ import de.webrush.ShapeCycler.BrushFunction;
 public class PreciseSphereBrush implements Brush {
 
     @Override
-    public void build(EditSession session, BlockVector3 pos, Pattern pattern, double size)
+    public void build(EditSession session, BlockVector3 click, Pattern pattern, double size)
             throws MaxChangedBlocksException {
         
         List<BlockVector3> list = new ArrayList<>();  
         
-        BrushFunction function = (x, y, z, distance) -> {
-            list.add(BlockVector3.at(x, y, z));
+        BrushFunction function = vec -> {
+            list.add(vec);
         };
         
-        new ShapeCycler(function, size).run(pos, true);
+        new ShapeCycler(function, size).run(click);
         
         for (BlockVector3 vec : list) {
             session.setBlock(vec, pattern);

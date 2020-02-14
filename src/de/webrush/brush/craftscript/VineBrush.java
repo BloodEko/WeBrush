@@ -38,16 +38,15 @@ public class VineBrush implements Brush {
     }
     
     @Override
-    public void build(EditSession session, BlockVector3 vec, Pattern mat, double size) throws MaxChangedBlocksException {
+    public void build(EditSession session, BlockVector3 click, Pattern mat, double size) throws MaxChangedBlocksException {
         marked.clear();
         
-        BrushFunction vinebrush = (x, y, z, distance) -> {
-
-            BlockVector3 pos    = BlockVector3.at(x, y, z);
-            BlockState curBlock = session.getBlock(pos);
+        BrushFunction vinebrush = vec -> {
+            
+            BlockState curBlock = session.getBlock(vec);
             
             if (Math.random() > density) return;
-            if (curBlock.getBlockType() != BlockTypes.AIR || marked.contains(pos)) return;
+            if (curBlock.getBlockType() != BlockTypes.AIR || marked.contains(vec)) return;
             
 
             BlockState[] vines = new BlockState[4];
@@ -57,10 +56,10 @@ public class VineBrush implements Brush {
             vines[3] = BlockTypes.VINE.getDefaultState().with(BlockTypes.VINE.getProperty("north"), true);
 
             BlockType[] blockFaces = new BlockType[4];
-            blockFaces[0] = session.getBlock(pos.add(1,0,0)).getBlockType();
-            blockFaces[1] = session.getBlock(pos.add(-1,0,0)).getBlockType();
-            blockFaces[2] = session.getBlock(pos.add(0,0,1)).getBlockType();
-            blockFaces[3] = session.getBlock(pos.add(0,0,-1)).getBlockType();
+            blockFaces[0] = session.getBlock(vec.add(1,0,0)).getBlockType();
+            blockFaces[1] = session.getBlock(vec.add(-1,0,0)).getBlockType();
+            blockFaces[2] = session.getBlock(vec.add(0,0,1)).getBlockType();
+            blockFaces[3] = session.getBlock(vec.add(0,0,-1)).getBlockType();
 
             List<Integer> solidSide = new ArrayList<>();
             for (int i = 0; i < 4; i++) {
@@ -77,17 +76,17 @@ public class VineBrush implements Brush {
                 
                 BlockState newVine = vines[randomSide];
                 for (int extendVine = 0; extendVine <= randomLength; extendVine++) {
-                    if (session.getBlock(pos.add(0,-(extendVine),0)).getBlockType() == BlockTypes.AIR) {
+                    if (session.getBlock(vec.add(0,-(extendVine),0)).getBlockType() == BlockTypes.AIR) {
                         try {
                             if (mat.apply(BlockVector3.at(0, 0, 0)).getBlockType() == BlockTypes.VINE) {
-                                session.setBlock(pos.add(0,-(extendVine),0), newVine);
+                                session.setBlock(vec.add(0,-(extendVine),0), newVine);
                                 session.flushSession();
                             }
                             else {
-                                session.setBlock(pos.add(0,-(extendVine),0), mat);
+                                session.setBlock(vec.add(0,-(extendVine),0), mat);
                                 session.flushSession();
                             }
-                            marked.add(pos);
+                            marked.add(vec);
                         }
                         catch(MaxChangedBlocksException ex) {
                             ex.printStackTrace();
@@ -99,8 +98,7 @@ public class VineBrush implements Brush {
             }
         };
         
-        ShapeCycler cycler = new ShapeCycler(vinebrush, size);
-        cycler.run(vec, null);
+        new ShapeCycler(vinebrush, size).run(click);
     }
     
 }

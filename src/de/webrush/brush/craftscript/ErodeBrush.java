@@ -37,7 +37,7 @@ public class ErodeBrush implements Brush {
     }
     
     
-    private void makeErosion(EditSession session, BlockVector3 vec, double size) throws MaxChangedBlocksException {
+    private void makeErosion(EditSession session, BlockVector3 click, double size) throws MaxChangedBlocksException {
         
         // IS INT & BLOCKSTATE
         ArrayList<Object>     blocks    = new ArrayList<>();
@@ -48,21 +48,21 @@ public class ErodeBrush implements Brush {
         
         BlockType[] blockFaces = new BlockType[6];
         
-        BrushFunction erode = (x, y, z, distance) -> {
+        BrushFunction erode = vec -> {
             
-            BlockState curBlockId = session.getBlock(BlockVector3.at(x, y, z));
+            BlockState curBlockId = session.getBlock(vec);
             if (blackList.contains(curBlockId.getBlockType())) {
                 return;
             }
             
             int blockCnt = 0; 
             //check around the six sides of the current loop block position
-            blockFaces[0] = session.getBlock(BlockVector3.at(x+1,y,z)).getBlockType();
-            blockFaces[1] = session.getBlock(BlockVector3.at(x-1,y,z)).getBlockType();
-            blockFaces[2] = session.getBlock(BlockVector3.at(x,y,z+1)).getBlockType();
-            blockFaces[3] = session.getBlock(BlockVector3.at(x,y,z-1)).getBlockType();
-            blockFaces[4] = session.getBlock(BlockVector3.at(x,y+1,z)).getBlockType();
-            blockFaces[5] = session.getBlock(BlockVector3.at(x,y-1,z)).getBlockType();
+            blockFaces[0] = session.getBlock(vec.add(1,0,0)).getBlockType();
+            blockFaces[1] = session.getBlock(vec.add(-1,0,0)).getBlockType();
+            blockFaces[2] = session.getBlock(vec.add(0,0,1)).getBlockType();
+            blockFaces[3] = session.getBlock(vec.add(0,0,-1)).getBlockType();
+            blockFaces[4] = session.getBlock(vec.add(0,1,0)).getBlockType();
+            blockFaces[5] = session.getBlock(vec.add(0,-1,0)).getBlockType();
             
             BlockType sideBlock = BlockTypes.AIR;      //Search our blockFaces list for water or lava
             for (int i = 0; i < blockFaces.length; i++) {
@@ -83,22 +83,21 @@ public class ErodeBrush implements Brush {
 
 
             if (blockCnt >= maxFaces) {
-                blocks.add(x);
-                blocks.add(y);
-                blocks.add(z);
+                blocks.add(vec.getX());
+                blocks.add(vec.getY());
+                blocks.add(vec.getZ());
                 if (sideBlock != BlockTypes.AIR)  blocks.add(sideBlock.getDefaultState());
                 else blocks.add(BlockTypes.AIR.getDefaultState());
             }
             
         };
         
-        ShapeCycler cycler = new ShapeCycler(erode, size);
-        cycler.run(vec, null);
+        new ShapeCycler(erode, size).run(click);
         
         for (int i = 0; i < blocks.size(); i += 4) {
-            double     valx    = (double) blocks.get(i);
-            double     valy    = (double) blocks.get(i+1);
-            double     valz    = (double) blocks.get(i+2);
+            int     valx    = (int) blocks.get(i);
+            int     valy    = (int) blocks.get(i+1);
+            int     valz    = (int) blocks.get(i+2);
             BlockState valType = (BlockState) blocks.get(i+3);
             session.setBlock(BlockVector3.at(valx, valy, valz), valType);
         }
