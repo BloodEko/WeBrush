@@ -70,7 +70,7 @@ public class DispatchLayer {
             int iterations = getIntOrDefault(args, 2, 1);
             
             initBrush(player, session, null, 2, 
-                      new ErodeBrush(maxFaces, iterations), "worldedit.brush.erode", "Erode",
+                      new ErodeBrush(maxFaces, iterations), "Erode",
                     " MaxFaces:"   + maxFaces
                   + " Iterations:" + iterations);
         }
@@ -83,7 +83,7 @@ public class DispatchLayer {
             int iterations = getIntOrDefault(args, 2, 1);
             
             initBrush(player, session, null, 2, 
-                      new FillBrush(maxFaces, iterations), "worldedit.brush.fill", "Fill",
+                      new FillBrush(maxFaces, iterations), "Fill",
                     " MaxFaces:"   + maxFaces
                   + " Iterations:" + iterations);
         }
@@ -97,7 +97,7 @@ public class DispatchLayer {
             int     length  = getIntOrDefault(args, 3, 5);
             
             initBrush(player, session, pattern, 5,
-                      new VineBrush(chance, length), "worldedit.brush.vine", "Vine",
+                      new VineBrush(chance, length), "Vine",
                     " Mat:"    + format(pattern)
                   + " Chance:" + chance
                   + " Length:" + length);
@@ -112,7 +112,7 @@ public class DispatchLayer {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
             initBrush(player, session, null, 5, 
-                      new BlendBallBrush(), "worldedit.brush.blendball", "BlendBall", "");
+                      new BlendBallBrush(), "BlendBall", "");
         }
     }
     
@@ -130,7 +130,7 @@ public class DispatchLayer {
             ErosionBrush   erosion = new ErosionBrush(erosionFaces, eresionRecur, fillFaces, fillRecur);
             
             initBrush(player, session, null, size,
-                      new BlendBallErosion(blend, erosion, blendEdge), "worldedit.brush.erosion", "BlendBallErosion",
+                      new BlendBallErosion(blend, erosion, blendEdge), "BlendBallErosion",
                     " BlendEdge:"    + blendEdge
                   + " erosionFaces:" + erosionFaces
                   + " eresionRecur:" + eresionRecur
@@ -150,7 +150,7 @@ public class DispatchLayer {
             ErosionBrush brush = new ErosionBrush(erosionFaces, eresionRecur, fillFaces, fillRecur);
             
             initBrush(player, session, null, 5, 
-                      brush, "worldedit.brush.erosion", "Erosion",
+                      brush, "Erosion",
                     " erosionFaces:" + erosionFaces
                   + " eresionRecur:" + eresionRecur
                   + " fillFaces:"    + fillFaces
@@ -167,7 +167,7 @@ public class DispatchLayer {
             int     depth   = getIntOrDefault(args, 2, 3);
             
             initBrush(player, session, mat, 5,
-                      new OverlayBrush(depth, natural), "worldedit.brush.over", "Overlay",
+                      new OverlayBrush(depth, natural), "Overlay",
                     " Mat:"   + (natural ? "natural" : format(mat))
                   + " Depth:" + depth);
         }
@@ -185,7 +185,7 @@ public class DispatchLayer {
             }
             
             initBrush(player, session, null, 5,
-                      new TreeBrush(tree), "worldedit.brush.tree", "Tree",
+                      new TreeBrush(tree), "Tree",
                     " Tree:" + treename);
         }
     }
@@ -200,7 +200,7 @@ public class DispatchLayer {
             Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
 
             initBrush(player, session, pattern, 5, 
-                      new TestBrush(), "worldedit.brush.test", "Test", 
+                      new TestBrush(), "Test", 
                     " Mat:"  + format(pattern));
         }
     }
@@ -211,7 +211,7 @@ public class DispatchLayer {
             Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
 
             initBrush(player, session, pattern, 5, 
-                      new CubeBrush(), "worldedit.brush.cube", "Cube", 
+                      new CubeBrush(), "Cube", 
                     " Mat:" + format(pattern));
         }
     }
@@ -222,7 +222,7 @@ public class DispatchLayer {
             Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
             
             initBrush(player, session, pattern, 5,
-                      new PreciseSphereBrush(), "worldedit.brush.sphere", "Sphere",  
+                      new PreciseSphereBrush(), "Sphere",  
                     " Mat:" + format(pattern));
         }
     }
@@ -282,14 +282,14 @@ public class DispatchLayer {
         
         
         public void initBrush(BukkitPlayer player, LocalSession session, Pattern pattern, double size,
-                              Brush brush, String permission, String brushname, 
+                              Brush brush, String brushname, 
                               String brushdebug) throws InvalidToolBindException, MaxBrushRadiusException {
             
             checkSize(size);
             BrushTool tool = getTool(player, session);
             tool.setFill(pattern);
             tool.setSize(size);
-            tool.setBrush(brush, permission);
+            tool.setBrush(brush, "webrush.admin");
             sendInfo(player, size, brushname, brushdebug);
         }
         
