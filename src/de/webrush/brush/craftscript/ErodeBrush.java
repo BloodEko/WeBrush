@@ -31,11 +31,11 @@ public class ErodeBrush implements Brush {
     }
     
     private final int maxFaces;
-    private final int strength;
+    private final int iterations;
     
     public ErodeBrush(int maxFaces, int iterations) {
-        this.maxFaces = maxFaces;
-        this.strength = iterations;
+        this.maxFaces   = maxFaces;
+        this.iterations = iterations;
     }
     
     
@@ -84,9 +84,14 @@ public class ErodeBrush implements Brush {
             }
         };
         
-        new ShapeCycler(erode, size).run(click);
-        for (BlockChange change : blocks) {
-            session.setBlock(change.vec, change.type);
+        for (int i = 0; i < iterations; i++) {
+            new ShapeCycler(erode, size).run(click);
+            
+            for (BlockChange change : blocks) {
+                session.setBlock(change.vec, change.type);
+            }
+            blocks.clear();
+            session.flushSession();
         }
     }
     

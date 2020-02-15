@@ -3,8 +3,8 @@ package de.webrush;
 import com.sk89q.worldedit.math.BlockVector3;
 
 /**
- * Iterates through all blocks in a sphere.
- * Applies the function on matching locations.
+ * Uses the sphere function from WorldEdit to iterate
+ * through the locations. Calls the function on these.
  */
 public class ShapeCycler {
     
