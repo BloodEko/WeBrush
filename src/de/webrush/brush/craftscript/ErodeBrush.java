@@ -21,13 +21,21 @@ import de.webrush.ShapeCycler.BrushFunction;
  */
 public class ErodeBrush implements Brush {
     
+    public static ArrayList<BlockType> blackList;
+    
+    static {
+        blackList = new ArrayList<>();
+        blackList.add(BlockTypes.AIR);
+        blackList.add(BlockTypes.WATER);
+        blackList.add(BlockTypes.LAVA);
+    }
+    
     private final int maxFaces;
-    @SuppressWarnings("unused")
-    private final int iterations;
+    private final int strength;
     
     public ErodeBrush(int maxFaces, int iterations) {
-        this.maxFaces   = maxFaces;
-        this.iterations = iterations;
+        this.maxFaces = maxFaces;
+        this.strength = iterations;
     }
     
     
@@ -39,24 +47,15 @@ public class ErodeBrush implements Brush {
     
     private void makeErosion(EditSession session, BlockVector3 click, double size) throws MaxChangedBlocksException {
         
-        // IS INT & BLOCKSTATE
-        ArrayList<Object>     blocks    = new ArrayList<>();
-        ArrayList<BlockType>  blackList = new ArrayList<>();
-        blackList.add(BlockTypes.AIR);
-        blackList.add(BlockTypes.WATER);
-        blackList.add(BlockTypes.LAVA);
-        
-        BlockType[] blockFaces = new BlockType[6];
+        ArrayList<BlockChange> blocks = new ArrayList<>();
+        BlockType[]        blockFaces = new BlockType[6];
         
         BrushFunction erode = vec -> {
-            
-            BlockState curBlockId = session.getBlock(vec);
-            if (blackList.contains(curBlockId.getBlockType())) {
+            if (blackList.contains(session.getBlock(vec).getBlockType())) {
                 return;
             }
             
-            int blockCnt = 0; 
-            //check around the six sides of the current loop block position
+            //get all block-sides
             blockFaces[0] = session.getBlock(vec.add(1,0,0)).getBlockType();
             blockFaces[1] = session.getBlock(vec.add(-1,0,0)).getBlockType();
             blockFaces[2] = session.getBlock(vec.add(0,0,1)).getBlockType();
@@ -64,43 +63,43 @@ public class ErodeBrush implements Brush {
             blockFaces[4] = session.getBlock(vec.add(0,1,0)).getBlockType();
             blockFaces[5] = session.getBlock(vec.add(0,-1,0)).getBlockType();
             
-            BlockType sideBlock = BlockTypes.AIR;      //Search our blockFaces list for water or lava
+            BlockType sideBlock = null; 
+            int       blockCnt  = 0;
+            
             for (int i = 0; i < blockFaces.length; i++) {
-
-                if (blackList.contains(blockFaces[i])) {
-                    
+                if (blackList.contains(blockFaces[i])) { //matches for AIR most time
                     blockCnt++;
-                    if (i < 4) {      //If water/lava is found in one of the side positions then make the new block the same
-                        if(blockFaces[i] == BlockTypes.WATER) {
-                            sideBlock = BlockTypes.WATER;
-                        }
-                        else if(blockFaces[i] == BlockTypes.LAVA) {
-                            sideBlock = BlockTypes.LAVA;
+                    
+                    if (i < 4) { //If water/lava is found in one of the side positions then make the new block the same
+                        if (blockFaces[i] == BlockTypes.WATER || blockFaces[i] == BlockTypes.LAVA) {
+                            sideBlock = blockFaces[i];
                         }
                     }
                 }
             }
 
-
             if (blockCnt >= maxFaces) {
-                blocks.add(vec.getX());
-                blocks.add(vec.getY());
-                blocks.add(vec.getZ());
-                if (sideBlock != BlockTypes.AIR)  blocks.add(sideBlock.getDefaultState());
-                else blocks.add(BlockTypes.AIR.getDefaultState());
+                BlockState temp = sideBlock == null ? BlockTypes.AIR.getDefaultState() : sideBlock.getDefaultState();
+                blocks.add(new BlockChange(vec, temp));
             }
-            
         };
         
         new ShapeCycler(erode, size).run(click);
-        
-        for (int i = 0; i < blocks.size(); i += 4) {
-            int     valx    = (int) blocks.get(i);
-            int     valy    = (int) blocks.get(i+1);
-            int     valz    = (int) blocks.get(i+2);
-            BlockState valType = (BlockState) blocks.get(i+3);
-            session.setBlock(BlockVector3.at(valx, valy, valz), valType);
+        for (BlockChange change : blocks) {
+            session.setBlock(change.vec, change.type);
         }
-        
     }
+    
+    
+    public static class BlockChange {
+        
+        public final BlockVector3 vec;
+        public final BlockState   type;
+        
+        public BlockChange(BlockVector3 vec, BlockState type) {
+            this.vec  = vec;
+            this.type = type;
+        }
+    }
+    
 }
