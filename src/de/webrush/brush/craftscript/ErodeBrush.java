@@ -1,6 +1,9 @@
 package de.webrush.brush.craftscript;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
@@ -47,21 +50,21 @@ public class ErodeBrush implements Brush {
     
     private void makeErosion(EditSession session, BlockVector3 click, double size) throws MaxChangedBlocksException {
         
-        ArrayList<BlockChange> blocks = new ArrayList<>();
-        BlockType[]        blockFaces = new BlockType[6];
+        ChangeTracker tracker    = new ChangeTracker(session);
+        BlockType[]   blockFaces = new BlockType[6];
         
         BrushFunction erode = vec -> {
-            if (blackList.contains(session.getBlock(vec).getBlockType())) {
+            if (blackList.contains(tracker.get(vec).getBlockType())) {
                 return;
             }
             
             //get all block-sides
-            blockFaces[0] = session.getBlock(vec.add(1,0,0)).getBlockType();
-            blockFaces[1] = session.getBlock(vec.add(-1,0,0)).getBlockType();
-            blockFaces[2] = session.getBlock(vec.add(0,0,1)).getBlockType();
-            blockFaces[3] = session.getBlock(vec.add(0,0,-1)).getBlockType();
-            blockFaces[4] = session.getBlock(vec.add(0,1,0)).getBlockType();
-            blockFaces[5] = session.getBlock(vec.add(0,-1,0)).getBlockType();
+            blockFaces[0] = tracker.get(vec.add(1,0,0)).getBlockType();
+            blockFaces[1] = tracker.get(vec.add(-1,0,0)).getBlockType();
+            blockFaces[2] = tracker.get(vec.add(0,0,1)).getBlockType();
+            blockFaces[3] = tracker.get(vec.add(0,0,-1)).getBlockType();
+            blockFaces[4] = tracker.get(vec.add(0,1,0)).getBlockType();
+            blockFaces[5] = tracker.get(vec.add(0,-1,0)).getBlockType();
             
             BlockType sideBlock = null; 
             int       blockCnt  = 0;
@@ -80,30 +83,52 @@ public class ErodeBrush implements Brush {
 
             if (blockCnt >= maxFaces) {
                 BlockState temp = sideBlock == null ? BlockTypes.AIR.getDefaultState() : sideBlock.getDefaultState();
-                blocks.add(new BlockChange(vec, temp));
+                tracker.setSoft(vec, temp);
             }
         };
         
         for (int i = 0; i < iterations; i++) {
             new ShapeCycler(erode, size).run(click);
-            
-            for (BlockChange change : blocks) {
-                session.setBlock(change.vec, change.type);
-            }
-            blocks.clear();
-            session.flushSession();
+            tracker.flushSoft();
         }
+        tracker.flushHard();
     }
     
     
-    public static class BlockChange {
+    public static class ChangeTracker {
         
-        public final BlockVector3 vec;
-        public final BlockState   type;
+        private EditSession session;
+        private Map<BlockVector3, BlockState> softChanges = new HashMap<>();
+        private Map<BlockVector3, BlockState> hardChanges = new HashMap<>();
         
-        public BlockChange(BlockVector3 vec, BlockState type) {
-            this.vec  = vec;
-            this.type = type;
+        public ChangeTracker(EditSession session) {
+            this.session = session;
+        }
+
+        public void setSoft(BlockVector3 at, BlockState to) {
+            softChanges.put(at, to);
+        }
+        
+        public void setHard(BlockVector3 at, BlockState to) {
+            hardChanges.put(at, to);
+        }
+        
+        public BlockState get(BlockVector3 at) {
+            BlockState val = hardChanges.get(at);
+            if (val == null) {
+                return session.getBlock(at);
+            }
+            return val;
+        }
+        
+        public void flushSoft() {
+            hardChanges.putAll(softChanges);
+        }
+        
+        public void flushHard() throws MaxChangedBlocksException {
+            for (Entry<BlockVector3, BlockState> entry : hardChanges.entrySet()) {
+                session.setBlock(entry.getKey(), entry.getValue());
+            }
         }
     }
     
