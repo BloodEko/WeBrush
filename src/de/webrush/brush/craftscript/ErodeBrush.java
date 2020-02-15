@@ -1,9 +1,6 @@
 package de.webrush.brush.craftscript;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
@@ -14,6 +11,7 @@ import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
+import de.webrush.ChangeTracker;
 import de.webrush.ShapeCycler;
 import de.webrush.ShapeCycler.BrushFunction;
 
@@ -91,45 +89,7 @@ public class ErodeBrush implements Brush {
             new ShapeCycler(erode, size).run(click);
             tracker.flushSoft();
         }
-        tracker.flushHard();
-    }
-    
-    
-    public static class ChangeTracker {
-        
-        private EditSession session;
-        private Map<BlockVector3, BlockState> softChanges = new HashMap<>();
-        private Map<BlockVector3, BlockState> hardChanges = new HashMap<>();
-        
-        public ChangeTracker(EditSession session) {
-            this.session = session;
-        }
-
-        public void setSoft(BlockVector3 at, BlockState to) {
-            softChanges.put(at, to);
-        }
-        
-        public void setHard(BlockVector3 at, BlockState to) {
-            hardChanges.put(at, to);
-        }
-        
-        public BlockState get(BlockVector3 at) {
-            BlockState val = hardChanges.get(at);
-            if (val == null) {
-                return session.getBlock(at);
-            }
-            return val;
-        }
-        
-        public void flushSoft() {
-            hardChanges.putAll(softChanges);
-        }
-        
-        public void flushHard() throws MaxChangedBlocksException {
-            for (Entry<BlockVector3, BlockState> entry : hardChanges.entrySet()) {
-                session.setBlock(entry.getKey(), entry.getValue());
-            }
-        }
+        tracker.writeToSession();
     }
     
 }
