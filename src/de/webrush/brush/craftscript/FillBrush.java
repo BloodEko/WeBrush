@@ -14,6 +14,7 @@ import com.sk89q.worldedit.world.block.BlockType;
 
 import de.webrush.ChangeTracker;
 import de.webrush.Shaper;
+import de.webrush.Util;
 import de.webrush.Shaper.BrushFunction;
 
 /**
@@ -39,19 +40,17 @@ public class FillBrush implements Brush {
     
     
     private void makeFill(EditSession session, BlockVector3 click, double size) throws MaxChangedBlocksException {
-        
+
+        List<BlockType> unsolid    = Util.unsolidList;
         ChangeTracker   tracker    = new ChangeTracker(session);
-        List<BlockType> blackList  = ErodeBrush.blackList;
         BlockState[]    blockFaces = new BlockState[6];
         
         BrushFunction erode = vec -> {
-            if (!blackList.contains(tracker.get(vec).getBlockType())) {
+            if (!unsolid.contains(tracker.get(vec).getBlockType())) {
                 return;
             }
-            
-            Map<BlockType, Counter> faces = new HashMap<BlockType, Counter>();
-            int blockCnt = 0;
 
+            //get all block-sides
             blockFaces[0] = tracker.get(vec.add(1,0,0));
             blockFaces[1] = tracker.get(vec.add(-1,0,0));
             blockFaces[2] = tracker.get(vec.add(0,0,1));
@@ -59,30 +58,28 @@ public class FillBrush implements Brush {
             blockFaces[4] = tracker.get(vec.add(0,1,0));
             blockFaces[5] = tracker.get(vec.add(0,-1,0));
             
+            Map<BlockType, Counter> map = new HashMap<BlockType, Counter>();
+            int blockCnt = 0;
             BlockState maxFaceBlock = null;
             int        maxFaceCnt   = 0;
             
             for (int i = 0; i < blockFaces.length; i++) {
-                
                 BlockState face = blockFaces[i];
                 BlockType  type = face.getBlockType();
                 
-                if (blackList.contains(type)) {
-                    continue;
+                if (!unsolid.contains(type)) {
+                    Counter counter = map.get(type);
+                    if (counter == null) {
+                        counter = new Counter();
+                        map.put(type, counter);
+                    }
+                    int cnt = counter.increment();
+                    if (cnt > maxFaceCnt) {
+                        maxFaceBlock = face;
+                        maxFaceCnt   = cnt;
+                    }
+                    blockCnt++;
                 }
-                
-                Counter counter = faces.get(type);
-                if (counter == null) {
-                    counter = new Counter();
-                    faces.put(type, counter);
-                }
-                int cnt = counter.increment();
-                
-                if (cnt > maxFaceCnt) {
-                    maxFaceBlock = face;
-                    maxFaceCnt   = cnt;
-                }
-                blockCnt++;
             }
             
             if (blockCnt >= maxFaces) {
