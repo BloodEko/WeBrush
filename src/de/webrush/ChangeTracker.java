@@ -10,9 +10,9 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 
 /**
- * Virtually tracks changes on locations. <br>
- * These can be written to the EditSession later on. <br>
- * This helps to keep the correct order for setting/reading blocks on brushes. <br>
+ * Virtually tracks changes on locations, writes them to the EditSession later on. <br>
+ * 1. to guarantee correct ordering. <br>
+ * 2. to make 1 single operation, which is important for FAWE and so. <br>
  * <br>
  * Soft changes can be set, flushed. <br>
  * Hard changes can be set, read and flushed. <br>
