@@ -6,21 +6,22 @@ import com.sk89q.worldedit.math.BlockVector3;
  * Uses the sphere function from WorldEdit to iterate
  * through the locations. Calls the function on these.
  */
-public class ShapeCycler {
+public class Shaper {
     
-    private final BrushFunction callback;
-    private final double size;
+    private final BrushFunction brush;
+    private final double        size;
     
-    public ShapeCycler(BrushFunction function, double size) {
-        this.callback = function;
-        this.size     = size;
+    private Shaper(BrushFunction brush, double size) {
+        this.brush = brush;
+        this.size  = size;
     }
     
-    public void run(BlockVector3 vec) {
-        run(vec, true);
+    
+    public static void runSphere(BrushFunction brush, BlockVector3 at, double size) {
+        new Shaper(brush, size).runSphere(at, true);
     }
     
-    public void run(BlockVector3 pos, boolean filled) {
+    private void runSphere(BlockVector3 pos, boolean filled) {
 
         final double radiusX = size/2 + 0.5;
         final double radiusY = size/2 + 0.5;
@@ -64,14 +65,14 @@ public class ShapeCycler {
                         }
                     }
 
-                    callback.apply(pos.add(x, y, z));
-                    callback.apply(pos.add(-x, y, z));
-                    callback.apply(pos.add(x, -y, z));
-                    callback.apply(pos.add(x, y, -z));
-                    callback.apply(pos.add(-x, -y, z));
-                    callback.apply(pos.add(x, -y, -z));
-                    callback.apply(pos.add(-x, y, -z));
-                    callback.apply(pos.add(-x, -y, -z));
+                    brush.apply(pos.add(x, y, z));
+                    brush.apply(pos.add(-x, y, z));
+                    brush.apply(pos.add(x, -y, z));
+                    brush.apply(pos.add(x, y, -z));
+                    brush.apply(pos.add(-x, -y, z));
+                    brush.apply(pos.add(x, -y, -z));
+                    brush.apply(pos.add(-x, y, -z));
+                    brush.apply(pos.add(-x, -y, -z));
                 }
             }
         }      

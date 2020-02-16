@@ -10,8 +10,8 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-import de.webrush.ShapeCycler;
-import de.webrush.ShapeCycler.BrushFunction;
+import de.webrush.Shaper;
+import de.webrush.Shaper.BrushFunction;
 
 
 public class TestBrush implements Brush {
@@ -24,7 +24,7 @@ public class TestBrush implements Brush {
             blocks.add(vec);
         };
         
-        new ShapeCycler(testbrush, size).run(click);
+        Shaper.runSphere(testbrush, click, size);
         
         HashSet<BlockVector3> duplicates = new HashSet<>();
         

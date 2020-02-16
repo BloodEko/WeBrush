@@ -13,8 +13,8 @@ import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 
 import de.webrush.ChangeTracker;
-import de.webrush.ShapeCycler;
-import de.webrush.ShapeCycler.BrushFunction;
+import de.webrush.Shaper;
+import de.webrush.Shaper.BrushFunction;
 
 /**
  * Fills Terrain based required faces and iterations. <br>
@@ -91,7 +91,7 @@ public class FillBrush implements Brush {
         };
         
         for (int i = 0; i < iterations; i++) {
-            new ShapeCycler(erode, size).run(click);
+            Shaper.runSphere(erode, click, size);
             tracker.flushSoft();
         }
         tracker.writeToSession();

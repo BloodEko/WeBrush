@@ -12,8 +12,8 @@ import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.webrush.ChangeTracker;
-import de.webrush.ShapeCycler;
-import de.webrush.ShapeCycler.BrushFunction;
+import de.webrush.Shaper;
+import de.webrush.Shaper.BrushFunction;
 
 /**
  * Erodes Terrain away based on faces and iterations. <br>
@@ -86,7 +86,7 @@ public class ErodeBrush implements Brush {
         };
         
         for (int i = 0; i < iterations; i++) {
-            new ShapeCycler(erode, size).run(click);
+            Shaper.runSphere(erode, click, size);
             tracker.flushSoft();
         }
         tracker.writeToSession();

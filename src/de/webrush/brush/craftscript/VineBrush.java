@@ -14,8 +14,8 @@ import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-import de.webrush.ShapeCycler;
-import de.webrush.ShapeCycler.BrushFunction;
+import de.webrush.Shaper;
+import de.webrush.Shaper.BrushFunction;
 
 /**
  * Places hanging Vines by a length and density from 0.0 to 1.0. <br>
@@ -98,7 +98,7 @@ public class VineBrush implements Brush {
             }
         };
         
-        new ShapeCycler(vinebrush, size).run(click);
+        Shaper.runSphere(vinebrush, click, size);
     }
     
 }

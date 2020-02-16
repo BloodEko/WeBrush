@@ -9,8 +9,8 @@ import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 
-import de.webrush.ShapeCycler;
-import de.webrush.ShapeCycler.BrushFunction;
+import de.webrush.Shaper;
+import de.webrush.Shaper.BrushFunction;
 
 /**
  * An more precise sphere brush.
@@ -28,7 +28,7 @@ public class PreciseSphereBrush implements Brush {
             list.add(vec);
         };
         
-        new ShapeCycler(function, size).run(click);
+        Shaper.runSphere(function, click, size);
         
         for (BlockVector3 vec : list) {
             session.setBlock(vec, pattern);
