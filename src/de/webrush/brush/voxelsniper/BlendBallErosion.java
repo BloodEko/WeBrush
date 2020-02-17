@@ -6,6 +6,8 @@ import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 
+import de.webrush.ChangeTracker;
+
 /**
  * Performs an erosion and smoothing operation in one. <br>
  * The blendradius will be added to the size, 1 seems to have best results.
@@ -26,10 +28,12 @@ public class BlendBallErosion implements Brush {
     public void build(EditSession session, BlockVector3 position, Pattern pattern, double size)
             throws MaxChangedBlocksException {
         
-        erosionBrush.build(session, position, pattern, size);
-        session.flushSession();
+        ChangeTracker tracker = new ChangeTracker(session);
         
-        blendBrush.build(session, position, pattern, size + blendEdge);
+        erosionBrush.build(tracker, position, pattern, size);
+        blendBrush.build(tracker, position, pattern, size + blendEdge);
+        
+        tracker.writeToSession();
     }
     
 }

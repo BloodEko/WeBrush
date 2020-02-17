@@ -2,7 +2,6 @@ package de.webrush.brush.voxelsniper;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
@@ -13,6 +12,8 @@ import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldedit.world.registry.BlockMaterial;
+
+import de.webrush.ChangeTracker;
 
 /**
  * Performs an eroding/filling erosion on the terrain.
@@ -49,28 +50,29 @@ public class ErosionBrush implements Brush {
     @Override
     public void build(EditSession session, BlockVector3 pos, Pattern pattern, double size)
             throws MaxChangedBlocksException {
-     
-        BlockChangeTracker blockChangeTracker = new BlockChangeTracker(session);
-        BlockVector3       targetBlockVector  = pos;
-
-        for (int i = 0; i < erodeRec; ++i) {
-            erosionIteration(session, (int) size, blockChangeTracker, targetBlockVector);
-        }
-
-        for (int i = 0; i < fillRec; ++i) {
-            fillIteration(session, (int) size, blockChangeTracker, targetBlockVector);
-        }
-
+    
+        ChangeTracker tracker = new ChangeTracker(session);
+        build(tracker, pos, pattern, size);
+        tracker.writeToSession();
+    }
+    
+    
+    public void build(ChangeTracker tracker, BlockVector3 pos, Pattern pattern, double size)
+            throws MaxChangedBlocksException {
         
-        for (Entry<BlockVector3, BlockState> entry : blockChangeTracker.getAll().entrySet()) {
-            session.setBlock(entry.getKey(), entry.getValue());
+        for (int i = 0; i < erodeRec; ++i) {
+            erosionIteration((int) size, tracker, pos);
+            tracker.flushSoft();
+        }
+        
+        for (int i = 0; i < fillRec; ++i) {
+            fillIteration((int) size, tracker, pos);
+            tracker.flushSoft();
         }
     }
 
-    private void fillIteration(EditSession session, int size, BlockChangeTracker blockChangeTracker, BlockVector3 pos)
+    private void fillIteration(int size, ChangeTracker tracker, BlockVector3 pos)
     {
-        
-        final int currentIteration = blockChangeTracker.nextIteration();
         for (int x = pos.getX() - size; x <= pos.getX() + size; ++x)
         {
             for (int z = pos.getZ() - size; z <= pos.getZ() + size; ++z)
@@ -80,7 +82,7 @@ public class ErosionBrush implements Brush {
                     BlockVector3 currentPosition = BlockVector3.at(x, y, z);
                     if (currentPosition.distanceSq(pos) <= size*size)
                     {
-                        BlockState currentBlock = blockChangeTracker.get(currentPosition, currentIteration);
+                        BlockState currentBlock  = tracker.get(currentPosition);
                         BlockMaterial currentMat = currentBlock.getBlockType().getMaterial();
 
                         if (!(currentMat.isAir() || currentMat.isLiquid()))
@@ -95,7 +97,7 @@ public class ErosionBrush implements Brush {
                         for (final BlockVector3 vector : FACES_TO_CHECK)
                         {
                             final BlockVector3  relativePosition = currentPosition.add(vector);
-                            final BlockState    relativeBlock = blockChangeTracker.get(relativePosition, currentIteration);
+                            final BlockState    relativeBlock = tracker.get(relativePosition);
                             final BlockType     relativeType  = relativeBlock.getBlockType();
 
                             if (!(relativeType.getMaterial().isAir() || relativeType.getMaterial().isLiquid()))
@@ -127,7 +129,7 @@ public class ErosionBrush implements Brush {
 
                         if (count >= fillFaces)
                         {
-                            blockChangeTracker.put(currentPosition, currentMaterial.getDefaultState(), currentIteration);
+                            tracker.setSoft(currentPosition, currentMaterial.getDefaultState());
                         }
                     }
                 }
@@ -135,10 +137,8 @@ public class ErosionBrush implements Brush {
         }
     }
 
-    private void erosionIteration(EditSession session, int size, BlockChangeTracker blockChangeTracker, BlockVector3 pos)
+    private void erosionIteration(int size, ChangeTracker tracker, BlockVector3 pos)
     {
-        
-        final int currentIteration = blockChangeTracker.nextIteration();
         for (int x = pos.getX() - size; x <= pos.getX() + size; ++x)
         {
             for (int z = pos.getZ() - size; z <= pos.getZ() + size; ++z)
@@ -148,7 +148,7 @@ public class ErosionBrush implements Brush {
                     final BlockVector3 currentPosition = BlockVector3.at(x, y, z);
                     if (currentPosition.distanceSq(pos) <= size*size)
                     {
-                        final BlockState    currentBlock = blockChangeTracker.get(currentPosition, currentIteration);
+                        final BlockState    currentBlock = tracker.get(currentPosition);
                         final BlockMaterial currentMat   = currentBlock.getBlockType().getMaterial();
 
                         if (currentMat.isAir() || currentMat.isLiquid())
@@ -160,7 +160,7 @@ public class ErosionBrush implements Brush {
                         for (final BlockVector3 vector : FACES_TO_CHECK)
                         {
                             final BlockVector3  relativePosition = currentPosition.add(vector);
-                            final BlockState    relativeBlock = blockChangeTracker.get(relativePosition, currentIteration);
+                            final BlockState    relativeBlock = tracker.get(relativePosition);
                             final BlockMaterial relativeMat  = relativeBlock.getBlockType().getMaterial();
 
                             if (relativeMat.isAir() || relativeMat.isLiquid())
@@ -171,7 +171,7 @@ public class ErosionBrush implements Brush {
 
                         if (count >= erodeFaces)
                         {
-                            blockChangeTracker.put(currentPosition, BlockTypes.AIR.getDefaultState(), currentIteration);
+                            tracker.setSoft(currentPosition, BlockTypes.AIR.getDefaultState());
                         }
                     }
                 }
@@ -179,7 +179,7 @@ public class ErosionBrush implements Brush {
         }
     }
     
-    
+    /*
     private static final class BlockChangeTracker {
         
         private final Map<Integer, Map<BlockVector3, BlockState>> blockChanges = new HashMap<>();
@@ -191,6 +191,8 @@ public class ErosionBrush implements Brush {
             this.session = session;
         }
 
+        // reads from all last iterations, blockchanges
+        // if no change found, reads from session.
         public BlockState get(BlockVector3 position, int iteration) {
             BlockState changedBlock = null;
 
@@ -212,6 +214,8 @@ public class ErosionBrush implements Brush {
             return this.nextIterationId++;
         }
 
+        // writes to current iteration, blockchanges
+        // writes go global, flat changes
         public void put(BlockVector3 position, BlockState changedBlock, int iteration) {
             if (!this.blockChanges.containsKey(iteration)) {
                 this.blockChanges.put(iteration, new HashMap<BlockVector3, BlockState>());
@@ -221,4 +225,6 @@ public class ErosionBrush implements Brush {
             this.flatChanges.put(position, changedBlock);
         }
     }
+    */
+    
 }

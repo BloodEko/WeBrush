@@ -10,6 +10,8 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 
+import de.webrush.ChangeTracker;
+
 /**
  * Smooths terrain. Similar to /b bb from VoxelSniper.
  * 
@@ -21,6 +23,14 @@ public class BlendBallBrush implements Brush {
     
     @Override
     public void build(EditSession session, BlockVector3 pos, Pattern pattern, double size)
+            throws MaxChangedBlocksException {
+        
+        ChangeTracker tracker = new ChangeTracker(session);
+        build(tracker, pos, pattern, size);
+        tracker.writeToSession();
+    }
+    
+    public void build(ChangeTracker tracker, BlockVector3 pos, Pattern pattern, double size)
             throws MaxChangedBlocksException {
         
         final int brushSize = (int) size + 1;
@@ -46,7 +56,7 @@ public class BlendBallBrush implements Brush {
                     }
                     int z0 = z + tz;
                     int highest = 1;
-                    BlockState currentState = session.getBlock(BlockVector3.at(x0, y0, z0));
+                    BlockState currentState = tracker.get(BlockVector3.at(x0, y0, z0));
                     BlockState highestState = currentState;
                     frequency.clear();
                     boolean tie = false;
@@ -56,7 +66,7 @@ public class BlendBallBrush implements Brush {
                                 if (oy + y0 < 0 || oy + y0 > WORLD_HEIGHT) {
                                     continue;
                                 }
-                                BlockState state = session.getBlock(BlockVector3.at(x0 + ox, y0 + oy, z0 + oz));
+                                BlockState state = tracker.get(BlockVector3.at(x0 + ox, y0 + oy, z0 + oz));
                                 Integer count = frequency.get(state);
                                 if (count == null) {
                                     count = 1;
@@ -81,7 +91,7 @@ public class BlendBallBrush implements Brush {
             }
         }
 
-        
+
         // apply the buffer to the world
         for (int x = -brushSize; x <= brushSize; x++) {
             int x0 = x + tx;
@@ -90,7 +100,7 @@ public class BlendBallBrush implements Brush {
                 for (int z = -brushSize; z <= brushSize; z++) {
                     int z0 = z + tz;
                     if (buffer.containsKey(BlockVector3.at(x, y, z))) {
-                        session.setBlock(BlockVector3.at(x0, y0, z0), buffer.get(BlockVector3.at(x, y, z)));
+                        tracker.setHard(BlockVector3.at(x0, y0, z0), buffer.get(BlockVector3.at(x, y, z)));
                     }
                 }
             }
