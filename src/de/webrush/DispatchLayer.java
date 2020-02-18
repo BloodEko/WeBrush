@@ -1,6 +1,8 @@
 package de.webrush;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -49,7 +51,7 @@ public class DispatchLayer {
         //voxelsniper
         brushes.put("bb",      new LoadBlendBall());
         brushes.put("ebb",     new LoadBlendballErosion());
-        brushes.put("erosion", new LoadErosion());
+        brushes.put("e",       new LoadErosion());
         brushes.put("over",    new LoadOverlay());
         brushes.put("tree",    new TreeLoader());
         
@@ -120,10 +122,11 @@ public class DispatchLayer {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
             int blendEdge    = getIntOrDefault(args, 1, 1);
-            int erosionFaces = getIntOrDefault(args, 2, 6);
-            int eresionRecur = getIntOrDefault(args, 3, 0);
-            int fillFaces    = getIntOrDefault(args, 4, 1);
-            int fillRecur    = getIntOrDefault(args, 5, 1);
+            int[] preset     = getPreset(args, 2, new int[] {6, 0, 1, 1});
+            int erosionFaces = preset[0];
+            int eresionRecur = preset[1];
+            int fillFaces    = preset[2];
+            int fillRecur    = preset[3];
             int size         = 5;
 
             BlendBallBrush blend   = new BlendBallBrush();
@@ -142,10 +145,11 @@ public class DispatchLayer {
     public static class LoadErosion extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int erosionFaces = getIntOrDefault(args, 1, 6);
-            int eresionRecur = getIntOrDefault(args, 2, 0);
-            int fillFaces    = getIntOrDefault(args, 3, 1);
-            int fillRecur    = getIntOrDefault(args, 4, 1);
+            int[] preset     = getPreset(args, 1, new int[] {6, 0, 1, 1});
+            int erosionFaces = preset[0];
+            int eresionRecur = preset[1];
+            int fillFaces    = preset[2];
+            int fillRecur    = preset[3];
             
             ErosionBrush brush = new ErosionBrush(erosionFaces, eresionRecur, fillFaces, fillRecur);
             
@@ -234,8 +238,47 @@ public class DispatchLayer {
     }
     
     
+    
+    public static class VoxelPreset {
+        public static final int[] melt     = { 2, 1, 5, 1 };
+        public static final int[] fill     = { 5, 1, 2, 1 };
+        public static final int[] smooth   = { 3, 1, 3, 1 };
+        public static final int[] liftUp   = { 6, 0, 1, 1 };
+        public static final int[] liftDown = { 1, 1, 6, 0 };
+        public static final List<String> names = new ArrayList<>();
+        
+        static {
+            names.add("melt");
+            names.add("fill");
+            names.add("smooth");
+            names.add("liftUp");
+            names.add("liftDown");
+        }
+    }
+    
+    
     public static abstract class BaseLoader implements BrushLoader {
 
+        public int[] getPreset(String[] args, int index, int[] or) {
+            
+            if (args.length > index) {
+                switch(args[index]) {
+                    case "melt":     return VoxelPreset.melt;
+                    case "fill":     return VoxelPreset.fill;
+                    case "smooth":   return VoxelPreset.smooth;
+                    case "liftUp":   return VoxelPreset.liftUp;
+                    case "liftDown": return VoxelPreset.liftDown;
+                }
+            }
+            
+            int[] array = new int[4];
+            for (int i = 0; i < array.length; i++) {
+                array[i] = getIntOrDefault(args, i + index, or[i]);
+                
+            }
+            return array;
+        }
+        
         public String getStringOrdefault(String[] args, int index, String or) {
             return args.length > index ? args[index] : or;
         }

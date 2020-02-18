@@ -19,6 +19,7 @@ import com.sk89q.worldedit.extension.input.NoMatchException;
 import com.sk89q.worldedit.util.TreeGenerator.TreeType;
 
 import de.webrush.DispatchLayer.BrushLoader;
+import de.webrush.DispatchLayer.VoxelPreset;
 import net.md_5.bungee.api.ChatColor;
 
 
@@ -44,10 +45,18 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
                 if (args[0].equals("tree")) {
                     return filterList(TreeType.getPrimaryAliases(), args[1]);
                 }
+                if (args[0].equals("e")) {
+                    return filterList(VoxelPreset.names, args[1]);
+                }
+                break;
                 
-            default:
-                return null;
+            case 3:
+                if (args[0].equals("ebb")) {
+                    return filterList(VoxelPreset.names, args[2]);
+                }
+                break;
         }
+        return null;
     }
     
     public List<String> filterList(Collection<? extends String> collection, String arg) {
