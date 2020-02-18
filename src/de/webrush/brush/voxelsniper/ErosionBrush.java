@@ -60,119 +60,117 @@ public class ErosionBrush implements Brush {
     public void build(ChangeTracker tracker, BlockVector3 pos, Pattern pattern, double size)
             throws MaxChangedBlocksException {
         
-        for (int i = 0; i < erodeRec; ++i) {
+        for (int i = 0; i < erodeRec; i++) {
             erosionIteration((int) size, tracker, pos);
             tracker.flushSoft();
         }
         
-        for (int i = 0; i < fillRec; ++i) {
+        for (int i = 0; i < fillRec; i++) {
             fillIteration((int) size, tracker, pos);
             tracker.flushSoft();
         }
     }
 
-    private void fillIteration(int size, ChangeTracker tracker, BlockVector3 pos)
-    {
-        for (int x = pos.getX() - size; x <= pos.getX() + size; ++x)
-        {
-            for (int z = pos.getZ() - size; z <= pos.getZ() + size; ++z)
-            {
-                for (int y = pos.getY() - size; y <= pos.getY() + size; ++y)
-                {
+    private void fillIteration(int size, ChangeTracker tracker, BlockVector3 pos) {
+        
+        int startX = pos.getX() - size;
+        int startY = pos.getY() - size;
+        int startZ = pos.getZ() - size;
+        int endX = pos.getX() + size;
+        int endY = pos.getY() + size;
+        int endZ = pos.getZ() + size;
+        
+        for (int x = startX; x <= endX; x++) {
+            for (int z = startZ; z <= endZ; z++) {
+                for (int y = startY; y <= endY; y++) {
+                    
                     BlockVector3 currentPosition = BlockVector3.at(x, y, z);
-                    if (currentPosition.distanceSq(pos) <= size*size)
-                    {
-                        BlockState currentBlock  = tracker.get(currentPosition);
-                        BlockMaterial currentMat = currentBlock.getBlockType().getMaterial();
+                    if (currentPosition.distanceSq(pos) > size*size) {
+                        continue;
+                    }
+                    
+                    BlockState currentBlock  = tracker.get(currentPosition);
+                    BlockMaterial currentMat = currentBlock.getBlockType().getMaterial();
 
-                        if (!(currentMat.isAir() || currentMat.isLiquid()))
-                        {
-                            continue;
-                        }
+                    if (!(currentMat.isAir() || currentMat.isLiquid())) {
+                        continue;
+                    }
 
-                        int count = 0;
+                    final Map<BlockType, Integer> blockCount = new HashMap<>();
+                    int count = 0;
 
-                        final Map<BlockType, Integer> blockCount = new HashMap<>();
+                    for (final BlockVector3 vector : FACES_TO_CHECK) {
+                        final BlockVector3  relativePosition = currentPosition.add(vector);
+                        final BlockState    relativeBlock = tracker.get(relativePosition);
+                        final BlockType     relativeType  = relativeBlock.getBlockType();
 
-                        for (final BlockVector3 vector : FACES_TO_CHECK)
-                        {
-                            final BlockVector3  relativePosition = currentPosition.add(vector);
-                            final BlockState    relativeBlock = tracker.get(relativePosition);
-                            final BlockType     relativeType  = relativeBlock.getBlockType();
-
-                            if (!(relativeType.getMaterial().isAir() || relativeType.getMaterial().isLiquid()))
-                            {
-                                count++;
-                                if (blockCount.containsKey(relativeType))
-                                {
-                                    blockCount.put(relativeType, blockCount.get(relativeType) + 1);
-                                }
-                                else
-                                {
-                                    blockCount.put(relativeType, 1);
-                                }
+                        if (!(relativeType.getMaterial().isAir() || relativeType.getMaterial().isLiquid())) {
+                            count++;
+                            if (blockCount.containsKey(relativeType)) {
+                                blockCount.put(relativeType, blockCount.get(relativeType) + 1);
+                            } else {
+                                blockCount.put(relativeType, 1);
                             }
                         }
+                    }
 
-                        BlockType currentMaterial = BlockTypes.AIR;
-                        int amount = 0;
+                    BlockType currentMaterial = BlockTypes.AIR;
+                    int amount = 0;
 
-                        for (final BlockType wrapper : blockCount.keySet())
-                        {
-                            final Integer currentCount = blockCount.get(wrapper);
-                            if (amount <= currentCount)
-                            {
-                                currentMaterial = wrapper;
-                                amount = currentCount;
-                            }
+                    for (final BlockType wrapper : blockCount.keySet()) {
+                        final Integer currentCount = blockCount.get(wrapper);
+                        if (amount <= currentCount) {
+                            currentMaterial = wrapper;
+                            amount = currentCount;
                         }
+                    }
 
-                        if (count >= fillFaces)
-                        {
-                            tracker.setSoft(currentPosition, currentMaterial.getDefaultState());
-                        }
+                    if (count >= fillFaces) {
+                        tracker.setSoft(currentPosition, currentMaterial.getDefaultState());
                     }
                 }
             }
         }
     }
 
-    private void erosionIteration(int size, ChangeTracker tracker, BlockVector3 pos)
-    {
-        for (int x = pos.getX() - size; x <= pos.getX() + size; ++x)
-        {
-            for (int z = pos.getZ() - size; z <= pos.getZ() + size; ++z)
-            {
-                for (int y = pos.getY() - size; y <= pos.getY() + size; ++y)
-                {
-                    final BlockVector3 currentPosition = BlockVector3.at(x, y, z);
-                    if (currentPosition.distanceSq(pos) <= size*size)
-                    {
-                        final BlockState    currentBlock = tracker.get(currentPosition);
-                        final BlockMaterial currentMat   = currentBlock.getBlockType().getMaterial();
+    private void erosionIteration(int size, ChangeTracker tracker, BlockVector3 pos) {
+        
+        int startX = pos.getX() - size;
+        int startY = pos.getY() - size;
+        int startZ = pos.getZ() - size;
+        int endX = pos.getX() + size;
+        int endY = pos.getY() + size;
+        int endZ = pos.getZ() + size;
+        
+        for (int x = startX; x <= endX; x++) {
+            for (int z = startZ; z <= endZ; z++) {
+                for (int y = startY; y <= endY; y++) {
+                    
+                    BlockVector3 currentPosition = BlockVector3.at(x, y, z);
+                    if (currentPosition.distanceSq(pos) > size*size) {
+                        continue;
+                    }
+                    
+                    BlockState    currentBlock = tracker.get(currentPosition);
+                    BlockMaterial currentMat   = currentBlock.getBlockType().getMaterial();
 
-                        if (currentMat.isAir() || currentMat.isLiquid())
-                        {
-                            continue;
+                    if (currentMat.isAir() || currentMat.isLiquid()) {
+                        continue;
+                    }
+
+                    int count = 0;
+                    for (final BlockVector3 vector : FACES_TO_CHECK) {
+                        final BlockVector3  relativePosition = currentPosition.add(vector);
+                        final BlockState    relativeBlock = tracker.get(relativePosition);
+                        final BlockMaterial relativeMat  = relativeBlock.getBlockType().getMaterial();
+
+                        if (relativeMat.isAir() || relativeMat.isLiquid()) {
+                            count++;
                         }
+                    }
 
-                        int count = 0;
-                        for (final BlockVector3 vector : FACES_TO_CHECK)
-                        {
-                            final BlockVector3  relativePosition = currentPosition.add(vector);
-                            final BlockState    relativeBlock = tracker.get(relativePosition);
-                            final BlockMaterial relativeMat  = relativeBlock.getBlockType().getMaterial();
-
-                            if (relativeMat.isAir() || relativeMat.isLiquid())
-                            {
-                                count++;
-                            }
-                        }
-
-                        if (count >= erodeFaces)
-                        {
-                            tracker.setSoft(currentPosition, BlockTypes.AIR.getDefaultState());
-                        }
+                    if (count >= erodeFaces) {
+                        tracker.setSoft(currentPosition, BlockTypes.AIR.getDefaultState());
                     }
                 }
             }
