@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>WorldEditBrushes</groupId>
   <artifactId>WorldEditBrushes</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -40,7 +40,7 @@
       			<configuration>
       				<target>
       					<echo>ANT TASK - copying files....</echo>
-                        <copy todir="C:/Users/Doris Lenhof/Desktop/mc/server-1-13-2/plugins" overwrite="true" flatten="true">
+                        <copy todir="${user.home}/Desktop/mc/server-1-13-2/plugins" overwrite="true" flatten="true">
                             <fileset dir="${basedir}" >
                                 <include name="target/${artifactId}-${version}.jar" />
                             </fileset>

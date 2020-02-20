@@ -10,3 +10,4 @@ target/antrun/build-main.xml
 .settings/org.eclipse.m2e.core.prefs
 .classpath
 target/classes/plugin.yml
+*.jar
