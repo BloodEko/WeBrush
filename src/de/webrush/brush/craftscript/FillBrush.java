@@ -14,7 +14,6 @@ import com.sk89q.worldedit.world.block.BlockType;
 
 import de.webrush.ChangeTracker;
 import de.webrush.Shaper;
-import de.webrush.Util;
 import de.webrush.Shaper.BrushFunction;
 
 /**
@@ -41,7 +40,7 @@ public class FillBrush implements Brush {
     
     private void makeFill(EditSession session, BlockVector3 click, double size) throws MaxChangedBlocksException {
 
-        List<BlockType> unsolid    = Util.unsolidList;
+        List<BlockType> unsolid    = CsUtil.unsolidList;
         ChangeTracker   tracker    = new ChangeTracker(session);
         BlockState[]    blockFaces = new BlockState[6];
         

@@ -1,11 +1,11 @@
-package de.webrush;
+package de.webrush.brush.craftscript;
 
 import java.util.ArrayList;
 
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-public class Util {
+public class CsUtil {
 
     public static final ArrayList<BlockType> unsolidList = new ArrayList<>();
     

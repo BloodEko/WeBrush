@@ -13,7 +13,6 @@ import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.webrush.ChangeTracker;
 import de.webrush.Shaper;
-import de.webrush.Util;
 import de.webrush.Shaper.BrushFunction;
 
 /**
@@ -40,7 +39,7 @@ public class ErodeBrush implements Brush {
     
     private void makeErosion(EditSession session, BlockVector3 click, double size) throws MaxChangedBlocksException {
         
-        List<BlockType> unsolid    = Util.unsolidList;
+        List<BlockType> unsolid    = CsUtil.unsolidList;
         ChangeTracker   tracker    = new ChangeTracker(session);
         BlockType[]     blockFaces = new BlockType[6];
         
@@ -62,10 +61,8 @@ public class ErodeBrush implements Brush {
             
             for (int i = 0; i < blockFaces.length; i++) {
                 if (unsolid.contains(blockFaces[i])) {
-                    if (isSide(i)) {
-                        if (blockFaces[i] == BlockTypes.WATER || blockFaces[i] == BlockTypes.LAVA) {
-                            sideBlock = blockFaces[i];
-                        }
+                    if (isSide(i) && blockFaces[i].getMaterial().isLiquid()) {
+                        sideBlock = blockFaces[i];
                     }
                     blockCnt++;
                 }
