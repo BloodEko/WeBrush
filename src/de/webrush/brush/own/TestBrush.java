@@ -19,22 +19,17 @@ public class TestBrush implements Brush {
     @Override
     public void build(EditSession session, BlockVector3 click, Pattern pattern, double size) throws MaxChangedBlocksException {
         ArrayList<BlockVector3> blocks = new ArrayList<>();
-        
         BrushFunction testbrush = vec -> {
             blocks.add(vec);
         };
         
         Shaper.runSphere(testbrush, click, size);
-        
         HashSet<BlockVector3> duplicates = new HashSet<>();
         
-        for (BlockVector3 temp : blocks) {
-            if (duplicates.contains(temp) ) {
-                session.setBlock(temp, BlockTypes.RED_WOOL.getDefaultState());
-            } else {
-                session.setBlock(temp, pattern);
-                duplicates.add(temp);
-            }
+        for (BlockVector3 vec : blocks) {
+            Pattern mat = duplicates.contains(vec) ? BlockTypes.RED_WOOL.getDefaultState() : pattern;
+            session.setBlock(vec, mat);
+            duplicates.add(vec);
         }
     }
       
