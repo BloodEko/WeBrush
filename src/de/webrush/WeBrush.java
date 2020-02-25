@@ -11,10 +11,12 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxRadiusException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.command.tool.InvalidToolBindException;
 import com.sk89q.worldedit.extension.input.NoMatchException;
 import com.sk89q.worldedit.util.TreeGenerator.TreeType;
 
@@ -81,7 +83,7 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
             return true;
         }
         
-        String arg0 = args[0].toLowerCase();
+        String arg0 = args[0];
         if (arg0.equals("debug")) {
             debug = !debug;
             sender.sendMessage(ChatColor.LIGHT_PURPLE + "Debug is now:" + debug);
@@ -110,6 +112,12 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
         }
         catch (NumberFormatException ex) {
             player.sendMessage(ChatColor.RED + "Could not parse to number: " + ex.getMessage());
+        }
+        catch (InvalidToolBindException ex) {
+            player.sendMessage(ChatColor.RED + "You must hold a tool for this brush: " + ex.getMessage());
+        }
+        catch (IncompleteRegionException ex) {
+            player.sendMessage(ChatColor.RED + "Your selection is not fully defined: " + ex.getMessage());
         }
         catch (Exception ex) {
             player.sendMessage(ChatColor.RED + "Exception found. Check console...");

@@ -22,9 +22,10 @@ import de.webrush.ChangeTracker;
  * <pre>
  * Melt     = 2, 1, 5, 1
  * Fill     = 5, 1, 2, 1
- * Smooth   = 3, 1, 3, 1
  * LiftUp   = 6, 0, 1, 1
  * LiftDown = 1, 1, 6, 0
+ * Smooth   = 3, 1, 3, 1
+ * Clean    = 6, 1, 6, 1
  * <pre>
  */
 public class ErosionBrush implements Brush {
