@@ -11,6 +11,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.sk89q.worldedit.EmptyClipboardException;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxRadiusException;
@@ -118,6 +119,9 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
         }
         catch (IncompleteRegionException ex) {
             player.sendMessage(ChatColor.RED + "Your selection is not fully defined: " + ex.getMessage());
+        }
+        catch(EmptyClipboardException ex) {
+            player.sendMessage(ChatColor.RED + "Your clipboard is empty: " + ex.getMessage());
         }
         catch (Exception ex) {
             player.sendMessage(ChatColor.RED + "Exception found. Check console...");

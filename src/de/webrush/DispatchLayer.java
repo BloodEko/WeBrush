@@ -31,6 +31,7 @@ import de.webrush.brush.craftscript.VineBrush;
 import de.webrush.brush.own.CubeBrush;
 import de.webrush.brush.own.BartelLine;
 import de.webrush.brush.own.PreciseSphereBrush;
+import de.webrush.brush.own.PasteBrush;
 import de.webrush.brush.own.TestBrush;
 import de.webrush.brush.voxelsniper.BlendBallBrush;
 import de.webrush.brush.voxelsniper.BlendBallErosion;
@@ -61,6 +62,7 @@ public class DispatchLayer {
         brushes.put("cube",       new LoadCube());
         brushes.put("sphere",     new LoadPreciseSphere());
         brushes.put("bartelLine", new LoadBartelLine());
+        brushes.put("paste",      new LoadPasteBrush());
     }
     
     //
@@ -253,6 +255,19 @@ public class DispatchLayer {
             
             checkSize(size);
             new BartelLine(player, session, pattern, size, tension, bias, continuity, quality, fill).build();
+        }
+    }
+    
+    public static class LoadPasteBrush extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            int     yoff   = getIntOrDefault(args, 1, 0);
+            boolean rotate = getBooleanOrDefault(args, 2, false);
+            
+            initBrush(player, session, null, 0, 
+                      new PasteBrush(session, yoff, rotate), "Schematic", 
+                    " yoff:"   + yoff +
+                    " rotate:" + rotate);
         }
     }
     
