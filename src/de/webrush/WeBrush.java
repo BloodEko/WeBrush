@@ -29,7 +29,6 @@ import net.md_5.bungee.api.ChatColor;
 public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter {
      
     WorldEditPlugin worldEditPlugin;
-    static boolean  debug;
     
     @Override
     public void onEnable() {
@@ -84,14 +83,7 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
             return true;
         }
         
-        String arg0 = args[0];
-        if (arg0.equals("debug")) {
-            debug = !debug;
-            sender.sendMessage(ChatColor.LIGHT_PURPLE + "Debug is now:" + debug);
-            return true;
-        }
-        
-        setBrush((Player) sender, arg0, args);
+        setBrush((Player) sender, args[0], args);
         return true;
     }
     
