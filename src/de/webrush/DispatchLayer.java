@@ -29,6 +29,7 @@ import de.webrush.brush.craftscript.ErodeBrush;
 import de.webrush.brush.craftscript.FillBrush;
 import de.webrush.brush.craftscript.VineBrush;
 import de.webrush.brush.own.CubeBrush;
+import de.webrush.brush.own.LineBrush;
 import de.webrush.brush.own.BartelLine;
 import de.webrush.brush.own.PreciseSphereBrush;
 import de.webrush.brush.own.PasteBrush;
@@ -62,6 +63,7 @@ public class DispatchLayer {
         brushes.put("cube",       new LoadCube());
         brushes.put("sphere",     new LoadPreciseSphere());
         brushes.put("bartelLine", new LoadBartelLine());
+        brushes.put("line",       new LoadLineBrush());
         brushes.put("paste",      new LoadPasteBrush());
     }
     
@@ -235,26 +237,36 @@ public class DispatchLayer {
         }
     }
     
+    public static class LoadLineBrush extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            
+            initBrush(player, session, pattern, 0,
+                      new LineBrush(player, session), "Line",
+                    " Mat:" + format(pattern));
+        }
+    }
+    
     public static class LoadBartelLine extends BaseLoader {
 
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            Pattern pattern  = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-            String  mat      = format(pattern);
-            double  size     = getDoubleOrDefault(args, 2, 0.5);
+            Pattern mat        = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            double  size       = getDoubleOrDefault(args, 2, 0.5);
             double  tension    = getDoubleOrDefault(args, 3, -0.2);
             double  bias       = getDoubleOrDefault(args, 4, 0);
             double  continuity = getDoubleOrDefault(args, 5, 0.5);
             double  quality    = getDoubleOrDefault(args, 6, 5);
             boolean fill       = getBooleanOrDefault(args, 7, true);
             
-            player.print("Set splatter line."   +
-                    " material:"   + mat        + " size:"    + size + 
-                    " tension:"    + tension    + " bias:"    + bias + 
-                    " continuity:" + continuity + " quality:" + quality + 
+            player.print("Set splatter line."    +
+                    " mat:"        + format(mat) + " size:"    + size + 
+                    " tension:"    + tension     + " bias:"    + bias + 
+                    " continuity:" + continuity  + " quality:" + quality + 
                     " fill:" + fill);
             
             checkSize(size);
-            new BartelLine(player, session, pattern, size, tension, bias, continuity, quality, fill).build();
+            new BartelLine(player, session, mat, size, tension, bias, continuity, quality, fill).build();
         }
     }
     
