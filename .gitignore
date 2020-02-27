@@ -11,3 +11,4 @@ target/antrun/build-main.xml
 .classpath
 target/classes/plugin.yml
 *.jar
+dependency-reduced-pom.xml

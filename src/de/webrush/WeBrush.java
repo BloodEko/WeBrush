@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,12 +30,14 @@ import net.md_5.bungee.api.ChatColor;
 public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter {
      
     WorldEditPlugin worldEditPlugin;
+    static int      bindings;
     
     @Override
     public void onEnable() {
         this.getCommand("webrush").setExecutor(this);
         this.getCommand("webrush").setTabCompleter(this);
         worldEditPlugin = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
+        loadMetrics();
     }
 
     @Override
@@ -86,6 +89,11 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
         setBrush((Player) sender, args[0], args);
         return true;
     }
+
+    public String getHelpText() {
+        String cmds = "debug|" + String.join("|", DispatchLayer.brushes.keySet());
+        return "/webrush <" + cmds + ">";
+    }
     
     private void setBrush(Player player, String name, String[] args) {
         try {
@@ -96,6 +104,7 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
                 return;
             }
             loader.loadBrush(BukkitAdapter.adapt(player), session, args);
+            bindings++;
         }
         catch (MaxRadiusException ex) {
             player.sendMessage(ChatColor.RED + "Brush size is too big. Check WE config.");
@@ -120,9 +129,18 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
             ex.printStackTrace();
         }
     }
-
-    public String getHelpText() {
-        String cmds = "debug|" + String.join("|", DispatchLayer.brushes.keySet());
-        return "/webrush <" + cmds + ">";
+    
+    private void loadMetrics() {
+        Metrics metrics = new Metrics(this, 6606);
+        metrics.addCustomChart(new Metrics.SingleLineChart("bindings_count", () -> bindings));
+        metrics.addCustomChart(new Metrics.SimplePie("bindings", () -> "" + getUses() + "+"));
+    }
+    
+    private int getUses() {
+        if (bindings >= 100) return 100;
+        if (bindings >= 50)  return 50;
+        if (bindings >= 10)  return 10;
+        if (bindings >= 1)   return 1;
+        return 0;
     }
 }
