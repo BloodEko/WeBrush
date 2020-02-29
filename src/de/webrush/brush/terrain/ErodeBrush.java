@@ -1,7 +1,5 @@
 package de.webrush.brush.terrain;
 
-import java.util.List;
-
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.command.tool.brush.Brush;
@@ -39,12 +37,11 @@ public class ErodeBrush implements Brush {
     
     private void makeErosion(EditSession session, BlockVector3 click, double size) throws MaxChangedBlocksException {
         
-        List<BlockType> unsolid    = CsUtil.unsolidList;
         ChangeTracker   tracker    = new ChangeTracker(session);
         BlockType[]     blockFaces = new BlockType[6];
         
         BrushFunction erode = vec -> {
-            if (unsolid.contains(tracker.get(vec).getBlockType())) {
+            if (isWaterOrAir(tracker.get(vec).getBlockType())) {
                 return;
             }
             
@@ -60,7 +57,7 @@ public class ErodeBrush implements Brush {
             int       blockCnt  = 0;
             
             for (int i = 0; i < blockFaces.length; i++) {
-                if (unsolid.contains(blockFaces[i])) {
+                if (isWaterOrAir(blockFaces[i])) {
                     if (isSide(i) && blockFaces[i].getMaterial().isLiquid()) {
                         sideBlock = blockFaces[i];
                     }
@@ -79,7 +76,12 @@ public class ErodeBrush implements Brush {
         }
         tracker.writeToSession();
     }
-    
+  
+    private boolean isWaterOrAir(BlockType type) {
+        return type == BlockTypes.AIR 
+            || type == BlockTypes.WATER 
+            || type == BlockTypes.LAVA;
+    }
     
     private boolean isSide(int index) {
         return index < 4;

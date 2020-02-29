@@ -1,7 +1,6 @@
 package de.webrush.brush.terrain;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.sk89q.worldedit.EditSession;
@@ -11,6 +10,7 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
+import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.webrush.ChangeTracker;
 import de.webrush.Shaper;
@@ -40,12 +40,11 @@ public class FillBrush implements Brush {
     
     private void makeFill(EditSession session, BlockVector3 click, double size) throws MaxChangedBlocksException {
 
-        List<BlockType> unsolid    = CsUtil.unsolidList;
         ChangeTracker   tracker    = new ChangeTracker(session);
         BlockState[]    blockFaces = new BlockState[6];
         
         BrushFunction erode = vec -> {
-            if (!unsolid.contains(tracker.get(vec).getBlockType())) {
+            if (!isWaterOrAir(tracker.get(vec).getBlockType())) {
                 return;
             }
 
@@ -66,7 +65,7 @@ public class FillBrush implements Brush {
                 BlockState face = blockFaces[i];
                 BlockType  type = face.getBlockType();
                 
-                if (!unsolid.contains(type)) {
+                if (!isWaterOrAir(type)) {
                     Counter counter = map.get(type);
                     if (counter == null) {
                         counter = new Counter();
@@ -93,6 +92,11 @@ public class FillBrush implements Brush {
         tracker.writeToSession();
     }
     
+    private boolean isWaterOrAir(BlockType type) {
+        return type == BlockTypes.AIR 
+            || type == BlockTypes.WATER 
+            || type == BlockTypes.LAVA;
+    }
     
     private static class Counter {
         private int val;
