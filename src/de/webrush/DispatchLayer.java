@@ -33,7 +33,7 @@ import de.webrush.brush.material.VineBrush;
 import de.webrush.brush.shape.BartelLine;
 import de.webrush.brush.shape.CubeBrush;
 import de.webrush.brush.shape.LineBrush;
-import de.webrush.brush.shape.PreciseSphereBrush;
+import de.webrush.brush.shape.SphereBrush;
 import de.webrush.brush.terrain.BlendBallBrush;
 import de.webrush.brush.terrain.BlendBallErosion;
 import de.webrush.brush.terrain.ErodeBrush;
@@ -46,54 +46,83 @@ public class DispatchLayer {
     public static Map<String, BrushLoader> brushes = new HashMap<>();
     
     static {
-        //craftscripts
-        brushes.put("erode",   new LoadErode());
-        brushes.put("fill",    new LoadFill());
-        brushes.put("vine",    new LoadVine());
+        //material
+        brushes.put("over",  new LoadOverlay());
+        brushes.put("paste", new LoadPasteBrush());
+        brushes.put("test",  new LoadTest());
+        brushes.put("tree",  new LoadTree());
+        brushes.put("vine",  new LoadVine());
         
-        //voxelsniper
-        brushes.put("bb",      new LoadBlendBall());
-        brushes.put("ebb",     new LoadBlendballErosion());
-        brushes.put("e",       new LoadErosion());
-        brushes.put("over",    new LoadOverlay());
-        brushes.put("tree",    new TreeLoader());
-        
-        //own
-        brushes.put("test",       new LoadTest());
-        brushes.put("cube",       new LoadCube());
-        brushes.put("sphere",     new LoadPreciseSphere());
+        //shape
         brushes.put("bartelLine", new LoadBartelLine());
+        brushes.put("cube",       new LoadCube());
         brushes.put("line",       new LoadLineBrush());
-        brushes.put("paste",      new LoadPasteBrush());
+        brushes.put("sphere",     new LoadSphereBrush());
+        
+        //terrain
+        brushes.put("bb",    new LoadBlendBall());
+        brushes.put("ebb",   new LoadBlendballErosion());
+        brushes.put("erode", new LoadErode());
+        brushes.put("e",     new LoadErosion());
+        brushes.put("fill",  new LoadFill());
     }
     
-    //
-    // CraftScripts
-    //
     
-    public static class LoadErode extends BaseLoader {
+    // -------- |
+    // Material |
+    // -------- |
+    public static class LoadOverlay extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int maxFaces   = getIntOrDefault(args, 1, 2);
-            int iterations = getIntOrDefault(args, 2, 1);
+            boolean natural = isNatural(args, 1);
+            Pattern mat     = getPatternOrdefault(session, player, args, 1, BlockTypes.DIRT.getDefaultState());
+            int     depth   = getIntOrDefault(args, 2, 3);
             
-            initBrush(player, session, null, 2, 
-                      new ErodeBrush(maxFaces, iterations), "Erode",
-                    " MaxFaces:"   + maxFaces
-                  + " Iterations:" + iterations);
+            initBrush(player, session, mat, 5,
+                      new OverlayBrush(depth, natural), "Overlay",
+                    " Mat:"   + (natural ? "natural" : format(mat))
+                  + " Depth:" + depth);
         }
     }
     
-    public static class LoadFill extends BaseLoader {
+    public static class LoadPasteBrush extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int maxFaces   = getIntOrDefault(args, 1, 2);
-            int iterations = getIntOrDefault(args, 2, 1);
+            int     yoff   = getIntOrDefault(args, 1, 0);
+            boolean rotate = getBooleanOrDefault(args, 2, false);
             
-            initBrush(player, session, null, 2, 
-                      new FillBrush(maxFaces, iterations), "Fill",
-                    " MaxFaces:"   + maxFaces
-                  + " Iterations:" + iterations);
+            initBrush(player, session, null, 0, 
+                      new PasteBrush(session, yoff, rotate), "Schematic", 
+                    " yoff:"   + yoff +
+                    " rotate:" + rotate);
+        }
+    }
+    
+    public static class LoadTest extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+
+            initBrush(player, session, pattern, 5, 
+                      new TestBrush(), "Test", 
+                    " Mat:"  + format(pattern));
+        }
+    }
+    
+    public static class LoadTree extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            String   treename = getStringOrdefault(args, 1, "oak");
+            TreeType tree     = TreeGenerator.lookup(treename);
+            
+            if (tree == null) {
+                player.print(ChatColor.RED + "Tree not found: " + treename);
+                return;
+            }
+            
+            initBrush(player, session, null, 5,
+                      new TreeBrush(tree), "Tree",
+                    " Tree:" + treename);
         }
     }
     
@@ -112,10 +141,69 @@ public class DispatchLayer {
         }
     }
     
-    //
-    // VoxelSniper
-    //
     
+    // ------ |
+    // Shape  |
+    // ------ |
+    public static class LoadBartelLine extends BaseLoader {
+
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern mat        = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            double  size       = getDoubleOrDefault(args, 2, 0.5);
+            double  tension    = getDoubleOrDefault(args, 3, -0.2);
+            double  bias       = getDoubleOrDefault(args, 4, 0);
+            double  continuity = getDoubleOrDefault(args, 5, 0.5);
+            double  quality    = getDoubleOrDefault(args, 6, 5);
+            boolean fill       = getBooleanOrDefault(args, 7, true);
+            
+            player.print("Set splatter line."    +
+                    " mat:"        + format(mat) + " size:"    + size + 
+                    " tension:"    + tension     + " bias:"    + bias + 
+                    " continuity:" + continuity  + " quality:" + quality + 
+                    " fill:" + fill);
+            
+            checkSize(size);
+            new BartelLine(player, session, mat, size, tension, bias, continuity, quality, fill).build();
+        }
+    }
+    
+    public static class LoadCube extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {          
+            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+
+            initBrush(player, session, pattern, 5, 
+                      new CubeBrush(), "Cube", 
+                    " Mat:" + format(pattern));
+        }
+    }
+    
+    public static class LoadLineBrush extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            
+            initBrush(player, session, pattern, 0,
+                      new LineBrush(player, session), "Line",
+                    " Mat:" + format(pattern));
+        }
+    }
+    
+    public static class LoadSphereBrush extends BaseLoader {
+
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
+            
+            initBrush(player, session, pattern, 5,
+                      new SphereBrush(), "Sphere",  
+                    " Mat:" + format(pattern));
+        }
+    }
+    
+    
+    // ------- |
+    // Terrain |
+    // ------- |
     public static class LoadBlendBall extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
@@ -148,6 +236,19 @@ public class DispatchLayer {
         }
     }
     
+    public static class LoadErode extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            int maxFaces   = getIntOrDefault(args, 1, 2);
+            int iterations = getIntOrDefault(args, 2, 1);
+            
+            initBrush(player, session, null, 2, 
+                      new ErodeBrush(maxFaces, iterations), "Erode",
+                    " MaxFaces:"   + maxFaces
+                  + " Iterations:" + iterations);
+        }
+    }
+      
     public static class LoadErosion extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
@@ -168,121 +269,18 @@ public class DispatchLayer {
         }
     }
     
-    
-    public static class LoadOverlay extends BaseLoader {
+    public static class LoadFill extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            boolean natural = isNatural(args, 1);
-            Pattern mat     = getPatternOrdefault(session, player, args, 1, BlockTypes.DIRT.getDefaultState());
-            int     depth   = getIntOrDefault(args, 2, 3);
+            int maxFaces   = getIntOrDefault(args, 1, 2);
+            int iterations = getIntOrDefault(args, 2, 1);
             
-            initBrush(player, session, mat, 5,
-                      new OverlayBrush(depth, natural), "Overlay",
-                    " Mat:"   + (natural ? "natural" : format(mat))
-                  + " Depth:" + depth);
+            initBrush(player, session, null, 2, 
+                      new FillBrush(maxFaces, iterations), "Fill",
+                    " MaxFaces:"   + maxFaces
+                  + " Iterations:" + iterations);
         }
     }
-    
-    public static class TreeLoader extends BaseLoader {
-        
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            String   treename = getStringOrdefault(args, 1, "oak");
-            TreeType tree     = TreeGenerator.lookup(treename);
-            
-            if (tree == null) {
-                player.print(ChatColor.RED + "Tree not found: " + treename);
-                return;
-            }
-            
-            initBrush(player, session, null, 5,
-                      new TreeBrush(tree), "Tree",
-                    " Tree:" + treename);
-        }
-    }
-    
-    //
-    // Own
-    //
-    
-    public static class LoadTest extends BaseLoader {
-        
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-
-            initBrush(player, session, pattern, 5, 
-                      new TestBrush(), "Test", 
-                    " Mat:"  + format(pattern));
-        }
-    }
-    
-    public static class LoadCube extends BaseLoader {
-        
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {          
-            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-
-            initBrush(player, session, pattern, 5, 
-                      new CubeBrush(), "Cube", 
-                    " Mat:" + format(pattern));
-        }
-    }
-    
-    public static class LoadPreciseSphere extends BaseLoader {
-
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            Pattern   pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-            
-            initBrush(player, session, pattern, 5,
-                      new PreciseSphereBrush(), "Sphere",  
-                    " Mat:" + format(pattern));
-        }
-    }
-    
-    public static class LoadLineBrush extends BaseLoader {
-        
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-            
-            initBrush(player, session, pattern, 0,
-                      new LineBrush(player, session), "Line",
-                    " Mat:" + format(pattern));
-        }
-    }
-    
-    public static class LoadBartelLine extends BaseLoader {
-
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            Pattern mat        = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-            double  size       = getDoubleOrDefault(args, 2, 0.5);
-            double  tension    = getDoubleOrDefault(args, 3, -0.2);
-            double  bias       = getDoubleOrDefault(args, 4, 0);
-            double  continuity = getDoubleOrDefault(args, 5, 0.5);
-            double  quality    = getDoubleOrDefault(args, 6, 5);
-            boolean fill       = getBooleanOrDefault(args, 7, true);
-            
-            player.print("Set splatter line."    +
-                    " mat:"        + format(mat) + " size:"    + size + 
-                    " tension:"    + tension     + " bias:"    + bias + 
-                    " continuity:" + continuity  + " quality:" + quality + 
-                    " fill:" + fill);
-            
-            checkSize(size);
-            new BartelLine(player, session, mat, size, tension, bias, continuity, quality, fill).build();
-        }
-    }
-    
-    public static class LoadPasteBrush extends BaseLoader {
-        
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int     yoff   = getIntOrDefault(args, 1, 0);
-            boolean rotate = getBooleanOrDefault(args, 2, false);
-            
-            initBrush(player, session, null, 0, 
-                      new PasteBrush(session, yoff, rotate), "Schematic", 
-                    " yoff:"   + yoff +
-                    " rotate:" + rotate);
-        }
-    }
-    
     
     
     public static interface BrushLoader {

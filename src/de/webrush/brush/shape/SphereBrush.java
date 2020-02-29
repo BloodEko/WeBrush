@@ -16,23 +16,20 @@ import de.webrush.Shaper.BrushFunction;
  * An more precise sphere brush.
  * Affects the same area as Fill/Erode from CraftScripts do.
  */
-public class PreciseSphereBrush implements Brush {
+public class SphereBrush implements Brush {
 
     @Override
     public void build(EditSession session, BlockVector3 click, Pattern pattern, double size)
             throws MaxChangedBlocksException {
         
-        List<BlockVector3> list = new ArrayList<>();  
-        
+        List<BlockVector3> list = new ArrayList<>();     
         BrushFunction function = vec -> {
             list.add(vec);
         };
         
-        Shaper.runSphere(function, click, size);
-        
+        Shaper.runSphere(function, click, size);  
         for (BlockVector3 vec : list) {
             session.setBlock(vec, pattern);
         }
-    }
-    
+    }   
 }
