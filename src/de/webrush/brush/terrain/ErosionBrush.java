@@ -1,4 +1,4 @@
-package de.webrush.brush.voxelsniper;
+package de.webrush.brush.terrain;
 
 import java.util.HashMap;
 import java.util.Map;

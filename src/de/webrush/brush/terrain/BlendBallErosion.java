@@ -1,4 +1,4 @@
-package de.webrush.brush.voxelsniper;
+package de.webrush.brush.terrain;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;

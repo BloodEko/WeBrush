@@ -1,4 +1,4 @@
-package de.webrush.brush.own;
+package de.webrush.brush.shape;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;

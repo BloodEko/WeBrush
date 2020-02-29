@@ -1,4 +1,4 @@
-package de.webrush.brush.craftscript;
+package de.webrush.brush.terrain;
 
 import java.util.ArrayList;
 

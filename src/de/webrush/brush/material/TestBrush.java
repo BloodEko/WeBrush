@@ -1,4 +1,4 @@
-package de.webrush.brush.own;
+package de.webrush.brush.material;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -25,20 +25,20 @@ import com.sk89q.worldedit.util.TreeGenerator.TreeType;
 import com.sk89q.worldedit.util.formatting.text.TextComponent;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-import de.webrush.brush.craftscript.ErodeBrush;
-import de.webrush.brush.craftscript.FillBrush;
-import de.webrush.brush.craftscript.VineBrush;
-import de.webrush.brush.own.CubeBrush;
-import de.webrush.brush.own.LineBrush;
-import de.webrush.brush.own.BartelLine;
-import de.webrush.brush.own.PreciseSphereBrush;
-import de.webrush.brush.own.PasteBrush;
-import de.webrush.brush.own.TestBrush;
-import de.webrush.brush.voxelsniper.BlendBallBrush;
-import de.webrush.brush.voxelsniper.BlendBallErosion;
-import de.webrush.brush.voxelsniper.ErosionBrush;
-import de.webrush.brush.voxelsniper.OverlayBrush;
-import de.webrush.brush.voxelsniper.TreeBrush;
+import de.webrush.brush.material.OverlayBrush;
+import de.webrush.brush.material.PasteBrush;
+import de.webrush.brush.material.TestBrush;
+import de.webrush.brush.material.TreeBrush;
+import de.webrush.brush.material.VineBrush;
+import de.webrush.brush.shape.BartelLine;
+import de.webrush.brush.shape.CubeBrush;
+import de.webrush.brush.shape.LineBrush;
+import de.webrush.brush.shape.PreciseSphereBrush;
+import de.webrush.brush.terrain.BlendBallBrush;
+import de.webrush.brush.terrain.BlendBallErosion;
+import de.webrush.brush.terrain.ErodeBrush;
+import de.webrush.brush.terrain.ErosionBrush;
+import de.webrush.brush.terrain.FillBrush;
 import net.md_5.bungee.api.ChatColor;
 
 public class DispatchLayer {
