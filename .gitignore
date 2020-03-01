@@ -12,3 +12,4 @@ target/antrun/build-main.xml
 target/classes/plugin.yml
 *.jar
 dependency-reduced-pom.xml
+*.psd
