@@ -52,7 +52,7 @@ public class OverlayBrush implements Brush {
                     }
                     
                     for (int currentDepth = y; y - currentDepth < depth; currentDepth--) {
-                        BlockVector3 currentVec = BlockVector3.at(pos.getX() + x, normalizeY(currentDepth), pos.getZ() + z);
+                        BlockVector3 currentVec = BlockVector3.at(pos.getX() + x, currentDepth, pos.getZ() + z);
                         if (natural && y == currentDepth) { //top layer
                             session.setBlock(currentVec, grassblock);
                             continue;
@@ -67,16 +67,6 @@ public class OverlayBrush implements Brush {
             }
         }
           
-    }
-    
-    private int normalizeY(int y) {
-        if (y < 0) {
-            return 0;
-        }
-        if (y > 256) {
-            return 256;
-        }
-        return y;
     }
     
     private boolean isUnsolid(BlockType type) {
