@@ -39,6 +39,7 @@ import de.webrush.brush.terrain.BlendBallErosion;
 import de.webrush.brush.terrain.ErodeBrush;
 import de.webrush.brush.terrain.ErosionBrush;
 import de.webrush.brush.terrain.FillBrush;
+import de.webrush.brush.terrain.FlattenBrush;
 import net.md_5.bungee.api.ChatColor;
 
 public class DispatchLayer {
@@ -60,11 +61,12 @@ public class DispatchLayer {
         brushes.put("sphere",     new LoadSphereBrush());
         
         //terrain
-        brushes.put("bb",    new LoadBlendBall());
-        brushes.put("ebb",   new LoadBlendballErosion());
-        brushes.put("erode", new LoadErode());
-        brushes.put("e",     new LoadErosion());
-        brushes.put("fill",  new LoadFill());
+        brushes.put("bb",      new LoadBlendBall());
+        brushes.put("ebb",     new LoadBlendballErosion());
+        brushes.put("erode",   new LoadErode());
+        brushes.put("e",       new LoadErosion());
+        brushes.put("fill",    new LoadFill());
+        brushes.put("flatten", new LoadFlatten());
     }
     
     
@@ -279,6 +281,19 @@ public class DispatchLayer {
                       new FillBrush(maxFaces, iterations), "Fill",
                     " MaxFaces:"   + maxFaces
                   + " Iterations:" + iterations);
+        }
+    }
+    
+    public static class LoadFlatten extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            int height = getIntOrDefault(args, 1, 20);
+            int blocks = getIntOrDefault(args, 2, 1);
+            
+            initBrush(player, session, BlockTypes.STONE.getDefaultState(), 5, 
+                      new FlattenBrush(height, blocks), "Flatten",
+                      " height:" + height
+                    + " blocks:" + blocks);
         }
     }
     

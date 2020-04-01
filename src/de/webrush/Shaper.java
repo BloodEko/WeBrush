@@ -1,5 +1,8 @@
 package de.webrush;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sk89q.worldedit.math.BlockVector3;
 
 /**
@@ -84,6 +87,36 @@ public class Shaper {
     
     public interface BrushFunction {
         public void apply(BlockVector3 pos);
+    }
+    
+    /**
+     * Gets all blocks for a precise disk. <br>
+     * Affected blocks will be in the radius (size/2 + 0.5).
+     */
+    public static List<BlockVector3> getDisc(BlockVector3 pos, double radius) {
+        List<BlockVector3> list = new ArrayList<>();
+        
+        int size   = (int) radius;
+        int startX = pos.getX() - size;
+        int startZ = pos.getZ() - size;
+        
+        int endX   = pos.getX() + size;
+        int endZ   = pos.getZ() + size;
+        int y      = pos.getY();
+        
+        radius     = radius/2 + 0.5;
+        radius     = radius*radius;
+        
+        for (int x = startX; x <= endX; x++) {
+            for (int z = startZ; z <= endZ; z++) {
+                
+                if (Math.pow(pos.getX() - x, 2) + Math.pow(pos.getZ() - z, 2) <= radius) {
+                    list.add(BlockVector3.at(x, y, z));
+                }
+                
+            }
+        }
+        return list;
     }
     
 }
