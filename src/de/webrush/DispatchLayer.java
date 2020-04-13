@@ -40,6 +40,7 @@ import de.webrush.brush.terrain.ErodeBrush;
 import de.webrush.brush.terrain.ErosionBrush;
 import de.webrush.brush.terrain.FillBrush;
 import de.webrush.brush.terrain.FlattenBrush;
+import de.webrush.brush.terrain.SpikeBrush;
 import net.md_5.bungee.api.ChatColor;
 
 public class DispatchLayer {
@@ -67,6 +68,7 @@ public class DispatchLayer {
         brushes.put("e",       new LoadErosion());
         brushes.put("fill",    new LoadFill());
         brushes.put("flatten", new LoadFlatten());
+        brushes.put("spike",   new LoadSpike());
     }
     
     
@@ -103,11 +105,13 @@ public class DispatchLayer {
     public static class LoadTest extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            Pattern pattern = getPatternOrdefault(session, player, args, 1, BlockTypes.STONE.getDefaultState());
-
-            initBrush(player, session, pattern, 5, 
-                      new TestBrush(), "Test", 
-                    " Mat:"  + format(pattern));
+            int height  = getIntOrDefault(args, 1, 20);
+            int blocks  = getIntOrDefault(args, 2, 1);
+            
+            initBrush(player, session, BlockTypes.STONE.getDefaultState(), 5, 
+                      new TestBrush(height, blocks), "Test",
+                    " height:"  + height
+                  + " blocks:"  + blocks);
         }
     }
     
@@ -294,6 +298,19 @@ public class DispatchLayer {
                       new FlattenBrush(height, blocks), "Flatten",
                       " height:" + height
                     + " blocks:" + blocks);
+        }
+    }
+    
+    public static class LoadSpike extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            int     height  = getIntOrDefault(args, 1, 20);
+            int     blocks  = getIntOrDefault(args, 2, 1);
+            
+            initBrush(player, session, BlockTypes.STONE.getDefaultState(), 5, 
+                      new SpikeBrush(height, blocks), "Spike",
+                    " height:"  + height
+                  + " blocks:"  + blocks);
         }
     }
     
