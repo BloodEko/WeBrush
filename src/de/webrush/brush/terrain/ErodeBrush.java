@@ -9,9 +9,9 @@ import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-import de.webrush.ChangeTracker;
-import de.webrush.Shaper;
-import de.webrush.Shaper.BrushFunction;
+import de.webrush.util.ChangeTracker;
+import de.webrush.util.Shaper;
+import de.webrush.util.Shaper.BrushFunction;
 
 /**
  * Erodes Terrain away based on faces and iterations. <br>

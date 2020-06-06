@@ -1,4 +1,4 @@
-package de.webrush;
+package de.webrush.util;
 
 import java.util.HashMap;
 import java.util.Map;

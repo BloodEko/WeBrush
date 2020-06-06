@@ -1,4 +1,4 @@
-package de.webrush;
+package de.webrush.util;
 
 import java.util.ArrayList;
 import java.util.List;

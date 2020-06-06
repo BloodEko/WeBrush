@@ -7,7 +7,7 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 
-import de.webrush.Shaper;
+import de.webrush.util.Shaper;
 
 /**
  * Top-down brush which raises the land upon solid blocks. <br>

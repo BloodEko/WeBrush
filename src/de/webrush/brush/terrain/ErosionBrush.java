@@ -13,7 +13,7 @@ import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldedit.world.registry.BlockMaterial;
 
-import de.webrush.ChangeTracker;
+import de.webrush.util.ChangeTracker;
 
 /**
  * Performs an eroding/filling erosion on the terrain.

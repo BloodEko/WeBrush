@@ -9,8 +9,8 @@ import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 
-import de.webrush.Shaper;
-import de.webrush.Shaper.BrushFunction;
+import de.webrush.util.Shaper;
+import de.webrush.util.Shaper.BrushFunction;
 
 /**
  * An more precise sphere brush.

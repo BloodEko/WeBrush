@@ -6,7 +6,7 @@ import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 
-import de.webrush.ChangeTracker;
+import de.webrush.util.ChangeTracker;
 
 /**
  * Performs an erosion and smoothing operation in one. <br>

@@ -8,7 +8,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-import de.webrush.Shaper;
+import de.webrush.util.Shaper;
 
 /**
  * Experimental brush.

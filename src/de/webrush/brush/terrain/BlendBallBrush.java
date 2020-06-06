@@ -10,7 +10,7 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 
-import de.webrush.ChangeTracker;
+import de.webrush.util.ChangeTracker;
 
 /**
  * Smooths terrain. Similar to /b bb from VoxelSniper.
