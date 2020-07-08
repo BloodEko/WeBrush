@@ -41,6 +41,8 @@ import de.webrush.brush.terrain.ErosionBrush;
 import de.webrush.brush.terrain.FillBrush;
 import de.webrush.brush.terrain.FlattenBrush;
 import de.webrush.brush.terrain.SpikeBrush;
+import de.webrush.util.PreSet;
+import de.webrush.util.PreSetManager;
 import net.md_5.bungee.api.ChatColor;
 
 public class DispatchLayer {
@@ -69,6 +71,8 @@ public class DispatchLayer {
         brushes.put("fill",    new LoadFill());
         brushes.put("flatten", new LoadFlatten());
         brushes.put("spike",   new LoadSpike());
+        
+        brushes.put("preset",  new LoadPreset());
     }
     
     
@@ -311,6 +315,35 @@ public class DispatchLayer {
                       new SpikeBrush(height, blocks), "Spike",
                     " height:"  + height
                   + " blocks:"  + blocks);
+        }
+    }
+    
+    public static class LoadPreset extends BaseLoader {
+        
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            if (args.length <= 1) {
+                player.print("Args length too short!");
+                return;
+            }
+            
+            if (args[1].equalsIgnoreCase("reload")) {
+                PreSetManager manager = WeBrush.getPreSetManager();
+                manager.reload();
+                
+                int     counter = manager.map.keySet().size();
+                boolean error   = manager.error;
+                
+                player.print("Reloaded Presets. (" + counter + ")");
+                if (error)  {
+                    player.print("An error occured! Check console.");
+                }
+                return;
+            }
+            
+            String key    = args[1];
+            PreSet preSet = WeBrush.getPreSetManager().map.get(key);
+            preSet.loadAll(player.getPlayer());
+            player.print("Loaded Preset:" + key);
         }
     }
     

@@ -24,19 +24,35 @@ import com.sk89q.worldedit.util.TreeGenerator.TreeType;
 
 import de.webrush.DispatchLayer.BrushLoader;
 import de.webrush.DispatchLayer.VoxelPreset;
+import de.webrush.util.PreSetManager;
 import net.md_5.bungee.api.ChatColor;
 
 
 public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter {
-     
-    WorldEditPlugin worldEditPlugin;
-    static int      bindings;
+    
+    private WorldEditPlugin worldEditPlugin;
+    private PreSetManager   preSetManager;
+    
+    private static WeBrush  instance;
+    private static int      bindings;
+    
+    
+    public static WeBrush getInstance() {
+        return instance;
+    }
+    
+    public static PreSetManager getPreSetManager() {
+        return instance.preSetManager;
+    }
+    
     
     @Override
     public void onEnable() {
         this.getCommand("webrush").setExecutor(this);
         this.getCommand("webrush").setTabCompleter(this);
+        instance        = this;
         worldEditPlugin = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
+        preSetManager   = new PreSetManager();
         loadMetrics();
     }
 
@@ -52,6 +68,13 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
                 }
                 if (args[0].equals("e")) {
                     return filterList(VoxelPreset.names, args[1]);
+                }
+                if (args[0].equals("preset")) {
+                    List<String> list = filterList(preSetManager.map.keySet(), args[1]);
+                    if ("reload".startsWith(args[1])) {
+                        list.add("reload");
+                    }
+                    return list;
                 }
                 break;
                 
@@ -90,7 +113,7 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
         return true;
     }
 
-    public String getHelpText() {
+    private String getHelpText() {
         String cmds = "debug|" + String.join("|", DispatchLayer.brushes.keySet());
         return "/webrush <" + cmds + ">";
     }

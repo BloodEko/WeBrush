@@ -1,0 +1,63 @@
+# ------------------------------------------------------------------------------
+# Define customized presets here.                                              |
+# Itemnames: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html |
+#-------------------------------------------------------------------------------
+preset:
+  
+  spike:
+    1:
+      wooden_shovel:
+      - webrush spike
+      - size 1
+    2:
+      stone_shovel:
+      - webrush spike
+      - size 3
+    3:
+      iron_shovel:
+      - webrush spike
+      - size 5
+    4:
+      golden_shovel:
+      - webrush spike
+      - size 7
+    5:
+      diamond_shovel:
+      - webrush spike
+      - size 9
+  
+  sharp:
+    1:
+      stone_axe:
+      - webrush fill
+      - size 4
+    2:
+      stone_pickaxe:
+      - webrush erode
+      - size 4
+    3:
+      iron_axe:
+      - webrush fill
+      - size 5
+    4:
+      iron_pickaxe:
+      - webrush erode
+      - size 5
+   
+  form:
+    1:
+      stone_shovel:
+      - webrush ebb 1 liftUp
+      - size 3
+    2:
+      stone_pickaxe:
+      - webrush ebb 1 liftDown
+      - size 3
+    3:
+      iron_shovel:
+      - webrush ebb 1 liftUp
+      - size 4
+    4:
+      iron_pickaxe:
+      - webrush ebb 1 liftDown
+      - size 4
