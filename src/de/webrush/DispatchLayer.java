@@ -27,6 +27,7 @@ import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.webrush.brush.material.OverlayBrush;
 import de.webrush.brush.material.PasteBrush;
+import de.webrush.brush.material.PasteBrush.SchematicProvider;
 import de.webrush.brush.material.TestBrush;
 import de.webrush.brush.material.TreeBrush;
 import de.webrush.brush.material.VineBrush;
@@ -95,12 +96,15 @@ public class DispatchLayer {
     
     public static class LoadPasteBrush extends BaseLoader {
         
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
-            int     yoff   = getIntOrDefault(args, 1, 0);
-            boolean rotate = getBooleanOrDefault(args, 2, false);
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws Exception {
+            String source  = getStringOrdefault(args, 1, "clipboard");
+            int     yoff   = getIntOrDefault(args, 2, 0);
+            boolean rotate = getBooleanOrDefault(args, 3, true);
+            SchematicProvider provider = SchematicProvider.create(session, source);
             
             initBrush(player, session, null, 0, 
-                      new PasteBrush(session, yoff, rotate), "Schematic", 
+                      new PasteBrush(provider, yoff, rotate), "Paste", 
+                    " source:" + provider +
                     " yoff:"   + yoff +
                     " rotate:" + rotate);
         }
@@ -349,7 +353,7 @@ public class DispatchLayer {
     
     
     public static interface BrushLoader {
-        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException;
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws Exception;
     }
     
     
@@ -472,6 +476,6 @@ public class DispatchLayer {
 
         
         @Override
-        public abstract void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException;
+        public abstract void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws Exception;
     }
 }

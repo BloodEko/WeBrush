@@ -1,6 +1,8 @@
 package de.webrush;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,6 +43,10 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
         return instance;
     }
     
+    public static WorldEditPlugin getWorldEdit() {
+        return instance.worldEditPlugin;
+    }
+    
     public static PreSetManager getPreSetManager() {
         return instance.preSetManager;
     }
@@ -75,6 +81,10 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
                         list.add("reload");
                     }
                     return list;
+                }
+                if (args[0].equals("paste")) {
+                    List<String> list = Arrays.asList("clipboard", "/", "folder/", "file");
+                    return filterList(list, args[1]);
                 }
                 break;
                 
@@ -146,6 +156,9 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
         }
         catch(EmptyClipboardException ex) {
             player.sendMessage(ChatColor.RED + "Your clipboard is empty: " + ex.getMessage());
+        }
+        catch (FileNotFoundException ex) {
+            player.sendMessage(ChatColor.RED + "File not found: " + ex.getMessage());
         }
         catch (Exception ex) {
             player.sendMessage(ChatColor.RED + "Exception found. Check console...");
