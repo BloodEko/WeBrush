@@ -27,6 +27,7 @@ import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.webrush.brush.material.OverlayBrush;
 import de.webrush.brush.material.PasteBrush;
+import de.webrush.brush.material.PasteBrush.PasteParser;
 import de.webrush.brush.material.PasteBrush.SchematicProvider;
 import de.webrush.brush.material.TestBrush;
 import de.webrush.brush.material.TreeBrush;
@@ -100,10 +101,10 @@ public class DispatchLayer {
             String source  = getStringOrdefault(args, 1, "clipboard");
             int     yoff   = getIntOrDefault(args, 2, 0);
             boolean rotate = getBooleanOrDefault(args, 3, true);
-            SchematicProvider provider = SchematicProvider.create(session, source);
+            SchematicProvider provider = PasteParser.create(session, source);
             
             initBrush(player, session, null, 0, 
-                      new PasteBrush(provider, yoff, rotate), "Paste", 
+                      new PasteBrush(player, provider, yoff, rotate), "Paste", 
                     " source:" + provider +
                     " yoff:"   + yoff +
                     " rotate:" + rotate);

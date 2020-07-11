@@ -1,8 +1,6 @@
 package de.webrush;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,6 +24,7 @@ import com.sk89q.worldedit.util.TreeGenerator.TreeType;
 
 import de.webrush.DispatchLayer.BrushLoader;
 import de.webrush.DispatchLayer.VoxelPreset;
+import de.webrush.brush.material.PasteBrush.PasteTabCompleter;
 import de.webrush.util.PreSetManager;
 import net.md_5.bungee.api.ChatColor;
 
@@ -83,8 +82,7 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
                     return list;
                 }
                 if (args[0].equals("paste")) {
-                    List<String> list = Arrays.asList("clipboard", "/", "folder/", "file");
-                    return filterList(list, args[1]);
+                    return PasteTabCompleter.query(args[1]);
                 }
                 break;
                 
@@ -157,8 +155,8 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
         catch(EmptyClipboardException ex) {
             player.sendMessage(ChatColor.RED + "Your clipboard is empty: " + ex.getMessage());
         }
-        catch (FileNotFoundException ex) {
-            player.sendMessage(ChatColor.RED + "File not found: " + ex.getMessage());
+        catch(IllegalArgumentException ex) {
+            player.sendMessage(ChatColor.RED + ex.getMessage());
         }
         catch (Exception ex) {
             player.sendMessage(ChatColor.RED + "Exception found. Check console...");
