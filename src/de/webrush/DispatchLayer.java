@@ -98,7 +98,7 @@ public class DispatchLayer {
     public static class LoadPasteBrush extends BaseLoader {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws Exception {
-            String source  = getStringOrdefault(args, 1, "clipboard");
+            String source  = getStringOrdefault(args, 1, PasteParser.CLIPBOARD);
             int     yoff   = getIntOrDefault(args, 2, 0);
             boolean rotate = getBooleanOrDefault(args, 3, true);
             SchematicProvider provider = PasteParser.create(session, source);

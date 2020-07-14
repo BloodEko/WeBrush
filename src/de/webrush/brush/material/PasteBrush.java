@@ -158,7 +158,7 @@ public class PasteBrush implements Brush {
         }
         
         public ClipboardProvider(File file) throws IOException {
-            super(PasteParser.getFileName(file));
+            super(PasteParser.getFileDisplay(file));
             this.holder  = new ClipboardHolder(loadClipBoard(file));
         }
         
@@ -176,7 +176,7 @@ public class PasteBrush implements Brush {
         private final Map<File, ClipboardHolder> cache = new HashMap<>();
         
         public FolderProvider(File folder) {
-            super(PasteParser.getFolderName(folder));
+            super(PasteParser.getFolderDisplay(folder));
             files = getSchematicFiles(folder);
         }
         
@@ -206,72 +206,105 @@ public class PasteBrush implements Brush {
      * Also ensures files and folders exist and are in the correct format.
      */
     public static class PasteParser {
-        protected static final FilenameFilter FILEMASK = (file, name) -> name.endsWith(".schem");
-        protected static final String CLIPBOARD = "-clipboard";
-        protected static final String RANDOM    = "-random";
+        public static final FilenameFilter FILEMASK = (file, name) -> name.endsWith(".schem");
+        public static final String CLIPBOARD = "-clipboard";
+        public static final String RANDOM    = "-random";
         
         public static SchematicProvider create(LocalSession session, String source) throws EmptyClipboardException, IOException {
             if (source.equals(CLIPBOARD)) {
                 return new ClipboardProvider(session);
             }
             if (source.equals(RANDOM)) {
-                File folder = getSchematicFile("");
-                validateFolder(folder);
-                return new FolderProvider(folder);
+                return new FolderProvider(getSchematicFile(""));
             }
             if (source.endsWith("/")) {
-                File folder = getSchematicFile(source);
-                validateFolder(folder);
-                return new FolderProvider(folder);
+                return new FolderProvider(getSchematicFile(source));
             }
             if (!source.endsWith(".schem")) {
                 source += ".schem";
             }
-            File file = getSchematicFile(source);
-            validateFile(file);
-            return new ClipboardProvider(file);
+            return new ClipboardProvider(getSchematicFile(source));
         }
         
         /**
          * Returns the File in the schematics directory.
+         * Might throw an IllegalArgumentException.
          */
         public static File getSchematicFile(String destination) {
-            String path = WeBrush.getWorldEdit().getDataFolder().getAbsolutePath() + "/schematics/";
-            return new File(path + destination);
+            File   file = getRawSchematicFile(destination);
+            if (destination.endsWith("/")) validateFolder(file);
+            else                           validateFile(file);
+            return file;
         }
         
-        /**
-         * Shortens the filepath string repesentation.
+        public static File getRawSchematicFile(String destination) {
+            String path = getRootPath() + "/schematics/";
+            File   file = new File(path + destination);
+            return file;
+        }
+        
+        /** 
+         * Shortens the file-path.
          */
-        public static String getFileName(File file) {
-            String prefix = WeBrush.getWorldEdit().getDataFolder().getAbsolutePath();
+        public static String getFileDisplay(File file) {
+            String prefix = getRootPath();
             String full   = file.getAbsolutePath();
             return full.substring(prefix.length(), full.length());
         }
         
-        public static String getFolderName(File file) {
-            return getFileName(file) + File.separator;
+        /**
+         * Shortens the folder-path.
+         */
+        public static String getFolderDisplay(File file) {
+            return getFileDisplay(file) + File.separator;
         }
         
         /**
-         * Ensures that the file is a directory and contains schematic files.
+         * Ensures that the file is a directory and contains 
+         * schematic files and has an allowed path.
          */
         public static void validateFolder(File folder) {
+            validatePath(folder);
             if (!folder.isDirectory()) {
-                throw new IllegalArgumentException("Folder not found! " + getFolderName(folder));
+                throw new IllegalArgumentException("Folder not found! " + getFolderDisplay(folder));
             }
             if (folder.listFiles(FILEMASK).length == 0) {
-                throw new IllegalArgumentException("Folder is empty! " + getFolderName(folder));
+                throw new IllegalArgumentException("Folder is empty! " + getFolderDisplay(folder));
             }
         }
         
         /**
-         * Ensures that the file exists.
+         * Ensures that the file exists and has an allowed path.
          */
         public static void validateFile(File file) {
+            validatePath(file);
             if (!file.exists()) {
-                throw new IllegalArgumentException("File not found! " + getFileName(file));
+                throw new IllegalArgumentException("File not found! " + getFileDisplay(file));
             }
+        }
+        
+        /**
+         * Ensures that the path is a child of the root.
+         */
+        public static void validatePath(File file) {
+            if (!isValidPath(file)) {
+                throw new IllegalArgumentException("File is on an unsafe path.");
+            }
+        }
+        
+        /**
+         * Returns true, if the path starts with the root path.
+         */
+        public static boolean isValidPath(File file) {
+            String path = file.toPath().normalize().toString();
+            return path.startsWith(getRootPath());
+        }
+        
+        /**
+         * Returns the root path for the worldEdit folder.
+         */
+        public static String getRootPath() {
+            return WeBrush.getWorldEdit().getDataFolder().getAbsolutePath();
         }
     }
     
@@ -282,6 +315,7 @@ public class PasteBrush implements Brush {
      */
     public static class PasteTabCompleter {
 
+        
         public static List<String> query(String arg) {
             List<String> list = new ArrayList<>();
             if (PasteParser.CLIPBOARD.startsWith(arg)) list.add(PasteParser.CLIPBOARD);
@@ -291,14 +325,11 @@ public class PasteBrush implements Brush {
             String token = getSubToken(arg);
             File[] files = getSubFolder(path);
             
-            //System.out.println("Path:" + path);
-            //System.out.println("Token:" + token);
-            //System.out.println("Files:" + Arrays.toString(files));
-            
-            
-            
+            boolean valid = (files.length == 0) ? false : PasteParser.isValidPath(files[0]);
             for (File file : files) {
-                if (file.getName().startsWith(token) && !file.getName().contains(" ")) {
+                if (file.getName().startsWith(token) 
+                && !file.getName().contains(" ") 
+                && valid) {
                     if (file.isDirectory()) {
                         list.add(path + file.getName() + "/");
                     } else if (file.getName().endsWith(".schem")) {
@@ -313,7 +344,7 @@ public class PasteBrush implements Brush {
          * Returns the entries of the sub folder.
          */
         private static File[] getSubFolder(String path) {
-            File  folder = PasteParser.getSchematicFile(path);
+            File  folder = PasteParser.getRawSchematicFile(path);
             File[] files = folder.listFiles();
             if (files == null) return new File[0];
             return files;
