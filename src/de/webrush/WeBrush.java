@@ -1,5 +1,6 @@
 package de.webrush;
 
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +25,7 @@ import com.sk89q.worldedit.util.TreeGenerator.TreeType;
 
 import de.webrush.DispatchLayer.BrushLoader;
 import de.webrush.DispatchLayer.VoxelPreset;
+import de.webrush.brush.material.PasteBrush.BrushException;
 import de.webrush.brush.material.PasteBrush.PasteTabCompleter;
 import de.webrush.util.PreSetManager;
 import net.md_5.bungee.api.ChatColor;
@@ -155,8 +157,11 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
         catch(EmptyClipboardException ex) {
             player.sendMessage(ChatColor.RED + "Your clipboard is empty: " + ex.getMessage());
         }
-        catch(IllegalArgumentException ex) {
+        catch(BrushException ex) {
             player.sendMessage(ChatColor.RED + ex.getMessage());
+        }
+        catch(InvalidPathException ex) {
+            player.sendMessage(ChatColor.RED + "The provided path is invalid.");
         }
         catch (Exception ex) {
             player.sendMessage(ChatColor.RED + "Exception found. Check console...");

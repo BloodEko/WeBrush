@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -159,7 +160,7 @@ public class PasteBrush implements Brush {
         
         public ClipboardProvider(File file) throws IOException {
             super(PasteParser.getFileDisplay(file));
-            this.holder  = new ClipboardHolder(loadClipBoard(file));
+            this.holder = new ClipboardHolder(loadClipBoard(file));
         }
         
         public ClipboardHolder getHolder() {
@@ -231,15 +232,10 @@ public class PasteBrush implements Brush {
          * Might throw an IllegalArgumentException.
          */
         public static File getSchematicFile(String destination) {
-            File   file = getRawSchematicFile(destination);
-            if (destination.endsWith("/")) validateFolder(file);
-            else                           validateFile(file);
-            return file;
-        }
-        
-        public static File getRawSchematicFile(String destination) {
             String path = getRootPath() + "/schematics/";
             File   file = new File(path + destination);
+            if (destination.endsWith("/")) validateFolder(file);
+            else                           validateFile(file);
             return file;
         }
         
@@ -266,10 +262,11 @@ public class PasteBrush implements Brush {
         public static void validateFolder(File folder) {
             validatePath(folder);
             if (!folder.isDirectory()) {
-                throw new IllegalArgumentException("Folder not found! " + getFolderDisplay(folder));
+                throw new BrushException("Folder not found! " + getFolderDisplay(folder));
             }
-            if (folder.listFiles(FILEMASK).length == 0) {
-                throw new IllegalArgumentException("Folder is empty! " + getFolderDisplay(folder));
+            File[] files = folder.listFiles(FILEMASK);
+            if (files == null || files.length == 0) {
+                throw new BrushException("Folder is empty! " + getFolderDisplay(folder));
             }
         }
         
@@ -279,7 +276,7 @@ public class PasteBrush implements Brush {
         public static void validateFile(File file) {
             validatePath(file);
             if (!file.exists()) {
-                throw new IllegalArgumentException("File not found! " + getFileDisplay(file));
+                throw new BrushException("File not found! " + getFileDisplay(file));
             }
         }
         
@@ -287,17 +284,10 @@ public class PasteBrush implements Brush {
          * Ensures that the path is a child of the root.
          */
         public static void validatePath(File file) {
-            if (!isValidPath(file)) {
-                throw new IllegalArgumentException("File is on an unsafe path.");
-            }
-        }
-        
-        /**
-         * Returns true, if the path starts with the root path.
-         */
-        public static boolean isValidPath(File file) {
             String path = file.toPath().normalize().toString();
-            return path.startsWith(getRootPath());
+            if (!path.startsWith(getRootPath())) {
+                throw new BrushException("File is on an unsafe path.");
+            }
         }
         
         /**
@@ -321,22 +311,22 @@ public class PasteBrush implements Brush {
             if (PasteParser.CLIPBOARD.startsWith(arg)) list.add(PasteParser.CLIPBOARD);
             if (PasteParser.RANDOM.startsWith(arg)) list.add(PasteParser.RANDOM);
             
-            String path  = getSubPath(arg);
-            String token = getSubToken(arg);
-            File[] files = getSubFolder(path);
-            
-            boolean valid = (files.length == 0) ? false : PasteParser.isValidPath(files[0]);
-            for (File file : files) {
-                if (file.getName().startsWith(token) 
-                && !file.getName().contains(" ") 
-                && valid) {
-                    if (file.isDirectory()) {
-                        list.add(path + file.getName() + "/");
-                    } else if (file.getName().endsWith(".schem")) {
-                        list.add(path + file.getName());
+            try {
+                String path  = getSubPath(arg);
+                String token = getSubToken(arg);
+                File[] files = getSubFolder(path);
+                
+                for (File file : files) {
+                    if (file.getName().startsWith(token) 
+                    && !file.getName().contains(" ")) {
+                        if (file.isDirectory()) {
+                            list.add(path + file.getName() + "/");
+                        } else if (file.getName().endsWith(".schem")) {
+                            list.add(path + file.getName());
+                        }
                     }
                 }
-            }
+            } catch(BrushException | InvalidPathException ex) {}
             return list;
         }
         
@@ -344,7 +334,7 @@ public class PasteBrush implements Brush {
          * Returns the entries of the sub folder.
          */
         private static File[] getSubFolder(String path) {
-            File  folder = PasteParser.getRawSchematicFile(path);
+            File  folder = PasteParser.getSchematicFile(path);
             File[] files = folder.listFiles();
             if (files == null) return new File[0];
             return files;
@@ -368,6 +358,17 @@ public class PasteBrush implements Brush {
             int index = path.lastIndexOf('/');
             if (index == -1) return path;
             return path.substring(index + 1, path.length());
+        }
+    }
+    
+    /**
+     * Indicates that wrong input was given to the Brush.
+     */
+    public static class BrushException extends RuntimeException {
+        private static final long serialVersionUID = -1801406364876214202L;
+
+        public BrushException(String message) {
+            super(message);
         }
     }
     
