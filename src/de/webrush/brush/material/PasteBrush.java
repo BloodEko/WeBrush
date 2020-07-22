@@ -2,6 +2,7 @@ package de.webrush.brush.material;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
@@ -33,8 +34,8 @@ import de.webrush.WeBrush;
 import net.md_5.bungee.api.ChatColor;
 
 /**
- * Caches the clipboard on loading and pastes
- * it by clicking without air and with an offset.
+ * Allows pasting of a single clipboard, file or folder.
+ * The placement is centered with offset and rotation applied.
  */
 public class PasteBrush implements Brush {
     
@@ -53,50 +54,51 @@ public class PasteBrush implements Brush {
         this.rotate   = rotate;
     }
     
-    
     @Override
     public void build(EditSession session, BlockVector3 click, Pattern pattern, double size) {
         try {
-            
-            setClipboard();
-            if (rotate) {
-                rotate();
-            }
+            provideClipboard();
             BlockVector3 oldOrigin = clipboard.getOrigin();
-            BlockVector3 newOrigin = getOrigin();
+            BlockVector3 newOrigin = getCenter();
+            
             clipboard.setOrigin(newOrigin);
             Operation operation = holder.createPaste(session)
-                    .to(click)
-                    .ignoreAirBlocks(true)
-                    .copyEntities(true)
-                    .build();
+                .to(click)
+                .ignoreAirBlocks(true)
+                .copyEntities(true)
+                .build();
             Operations.completeLegacy(operation);
             clipboard.setOrigin(oldOrigin);
-            
-        }
-        catch(IOException ex) {
-            player.print(ChatColor.RED + "Error! File no longer accessible. " + ex.getMessage());
-        }
+        } 
+        catch(FileNotFoundException ex) {
+            player.print(ChatColor.RED + "Error! File no longer found. Reload brush.");
+        } 
         catch(Exception ex) {
             player.print(ChatColor.RED + "Error! Check console...");
             ex.printStackTrace();
         }
     }
     
-    private BlockVector3 getOrigin() {
+    private BlockVector3 getCenter() {
         Vector3 center = clipboard.getRegion().getCenter();
         double  height = clipboard.getRegion().getMinimumPoint().getY() - (1 + yoff);
         return BlockVector3.at(center.getX(), height, center.getZ());
     }
-       
+    
+    private void provideClipboard() throws IOException {
+        holder    = provider.getHolder();
+        clipboard = holder.getClipboard();
+        if (rotate) rotate();
+    }
+    
     private void rotate() {
-        AffineTransform transform = new AffineTransform();
-        transform = transform.rotateY(-getRandomRotation());
+        AffineTransform affine = new AffineTransform();
+        affine = affine.rotateY(-getRandomRotation());
         
         Vector3 vec = getRandomDirection().toBlockVector().abs().multiply(-2).add(1, 1, 1).toVector3();
-        transform = transform.scale(vec);
+        affine = affine.scale(vec);
         
-        holder.setTransform(holder.getTransform().combine(transform));
+        holder.setTransform(holder.getTransform().combine(affine));
     }
     
     private int getRandomRotation() {
@@ -112,18 +114,12 @@ public class PasteBrush implements Brush {
         return  north ? Direction.NORTH : Direction.WEST;
     }
     
-    private void setClipboard() throws IOException {
-        holder    = provider.getHolder();
-        clipboard = holder.getClipboard();
-    }
-    
     
     /**
      * Abstract base for various different strategies
-     * to provide a clipboard which can be pasted.
+     * to provide a clipboard.
      */
     public static abstract class SchematicProvider {
-        
         private final String display;
         
         public SchematicProvider(String display) {
@@ -135,7 +131,7 @@ public class PasteBrush implements Brush {
         }
         
         /**
-         * Loads the file as clipboard.
+         * Reads a file as Clipboard.
          */
         public Clipboard loadClipBoard(File file) throws IOException {
             ClipboardFormat format = ClipboardFormats.findByFile(file);
@@ -148,16 +144,18 @@ public class PasteBrush implements Brush {
     }
     
     /**
-     * Holds a Clipboard, returns it.
+     * Provides a single cached clipboard.
      */
     public static class ClipboardProvider extends SchematicProvider {
         private final ClipboardHolder holder;
         
+        /** Initializes with the sessions clipboard. */
         public ClipboardProvider(LocalSession session) throws EmptyClipboardException {
             super("clipboard");
             holder = session.getClipboard();
         }
         
+        /** Initializes with the file read as clipboard. */
         public ClipboardProvider(File file) throws IOException {
             super(PasteParser.getFileDisplay(file));
             this.holder = new ClipboardHolder(loadClipBoard(file));
@@ -203,20 +201,16 @@ public class PasteBrush implements Brush {
     
     
     /**
-     * Parses the player input to an concrete SchematicProvider.
-     * Also ensures files and folders exist and are in the correct format.
+     * Parses the player input to a concrete SchematicProvider.
+     * Ensures files and folders exist and are in the correct format.
      */
     public static class PasteParser {
         public static final FilenameFilter FILEMASK = (file, name) -> name.endsWith(".schem");
         public static final String CLIPBOARD = "-clipboard";
-        public static final String RANDOM    = "-random";
         
         public static SchematicProvider create(LocalSession session, String source) throws EmptyClipboardException, IOException {
             if (source.equals(CLIPBOARD)) {
                 return new ClipboardProvider(session);
-            }
-            if (source.equals(RANDOM)) {
-                return new FolderProvider(getSchematicFile(""));
             }
             if (source.endsWith("/")) {
                 return new FolderProvider(getSchematicFile(source));
@@ -228,8 +222,8 @@ public class PasteBrush implements Brush {
         }
         
         /**
-         * Returns the File in the schematics directory.
-         * Might throw an IllegalArgumentException.
+         * Returns the file in the schematics directory.
+         * Might throw an BrushException.
          */
         public static File getSchematicFile(String destination) {
             String path = getRootPath() + "/schematics/";
@@ -240,7 +234,8 @@ public class PasteBrush implements Brush {
         }
         
         /** 
-         * Shortens the file-path.
+         * Returns an a shorter file path.
+         * Stripping away information about the root.
          */
         public static String getFileDisplay(File file) {
             String prefix = getRootPath();
@@ -248,9 +243,6 @@ public class PasteBrush implements Brush {
             return full.substring(prefix.length(), full.length());
         }
         
-        /**
-         * Shortens the folder-path.
-         */
         public static String getFolderDisplay(File file) {
             return getFileDisplay(file) + File.separator;
         }
@@ -281,7 +273,7 @@ public class PasteBrush implements Brush {
         }
         
         /**
-         * Ensures that the path is a child of the root.
+         * Ensures that the path is inside the worldEdit folder.
          */
         public static void validatePath(File file) {
             String path = file.toPath().normalize().toString();
@@ -304,20 +296,21 @@ public class PasteBrush implements Brush {
      * Is able to read folders and files, but also sub-folders.
      */
     public static class PasteTabCompleter {
-
         
+        /**
+         * Takes an sub-path as input, converts it to an absolute path
+         * and returns matching files and folders.
+         */
         public static List<String> query(String arg) {
             List<String> list = new ArrayList<>();
             if (PasteParser.CLIPBOARD.startsWith(arg)) list.add(PasteParser.CLIPBOARD);
-            if (PasteParser.RANDOM.startsWith(arg)) list.add(PasteParser.RANDOM);
             
             try {
-                String path  = getSubPath(arg);
-                String token = getSubToken(arg);
-                File[] files = getSubFolder(path);
+                String path  = getBeforeSlash(arg);
+                File[] files = getSubFiles(path);
                 
                 for (File file : files) {
-                    if (file.getName().startsWith(token) 
+                    if (file.getName().startsWith(getAfterSlash(arg)) 
                     && !file.getName().contains(" ")) {
                         if (file.isDirectory()) {
                             list.add(path + file.getName() + "/");
@@ -331,9 +324,10 @@ public class PasteBrush implements Brush {
         }
         
         /**
-         * Returns the entries of the sub folder.
+         * Returns the files in a sub folder. The path will be
+         * appended to the schematic folder path.
          */
-        private static File[] getSubFolder(String path) {
+        private static File[] getSubFiles(String path) {
             File  folder = PasteParser.getSchematicFile(path);
             File[] files = folder.listFiles();
             if (files == null) return new File[0];
@@ -341,23 +335,23 @@ public class PasteBrush implements Brush {
         }
         
         /**
-         * Returns the path to a folder for a given argument.
-         * If it is no folder, returns an empty string to match default.
+         * Returns the section before the slash, including the slash.
+         * Returns an empty string, if the input contains no slash.
          */
-        private static String getSubPath(String path) {
-            int index = path.lastIndexOf("/");
+        private static String getBeforeSlash(String str) {
+            int index = str.lastIndexOf("/");
             if (index == -1) return "";
-            return path.substring(0, index + 1);
+            return str.substring(0, index + 1);
         }
         
         /**
-         * Returns the name of the folder/file in the sub directory.
-         * If it is in the root, returns the input.
+         * Returns the section after the slash, excluding the slash.
+         * Returns the input, if the section contains no slash.
          */
-        private static String getSubToken(String path) {
-            int index = path.lastIndexOf('/');
-            if (index == -1) return path;
-            return path.substring(index + 1, path.length());
+        private static String getAfterSlash(String str) {
+            int index = str.lastIndexOf('/');
+            if (index == -1) return str;
+            return str.substring(index + 1, str.length());
         }
     }
     
