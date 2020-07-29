@@ -73,8 +73,8 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
                 if (args[0].equals("tree")) {
                     return filterList(TreeType.getPrimaryAliases(), args[1]);
                 }
-                if (args[0].equals("e")) {
-                    return filterList(VoxelPreset.names, args[1]);
+                if (args[0].equals("e") || args[0].equals("ebb")) {
+                    return filterList(VoxelPreset.map.keySet(), args[1]);
                 }
                 if (args[0].equals("preset")) {
                     List<String> list = filterList(preSetManager.map.keySet(), args[1]);
@@ -85,12 +85,6 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
                 }
                 if (args[0].equals("paste")) {
                     return PasteTabCompleter.query(args[1]);
-                }
-                break;
-                
-            case 3:
-                if (args[0].equals("ebb")) {
-                    return filterList(VoxelPreset.names, args[2]);
                 }
                 break;
         }
