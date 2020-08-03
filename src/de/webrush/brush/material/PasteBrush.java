@@ -12,9 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.EmptyClipboardException;
 import com.sk89q.worldedit.LocalSession;
+import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
@@ -30,7 +33,6 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.util.Direction;
 
-import de.webrush.WeBrush;
 import net.md_5.bungee.api.ChatColor;
 
 /**
@@ -130,9 +132,6 @@ public class PasteBrush implements Brush {
             return display;
         }
         
-        /**
-         * Reads a file as Clipboard.
-         */
         public Clipboard loadClipBoard(File file) throws IOException {
             ClipboardFormat format = ClipboardFormats.findByFile(file);
             try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
@@ -149,13 +148,11 @@ public class PasteBrush implements Brush {
     public static class ClipboardProvider extends SchematicProvider {
         private final ClipboardHolder holder;
         
-        /** Initializes with the sessions clipboard. */
         public ClipboardProvider(LocalSession session) throws EmptyClipboardException {
             super("clipboard");
             holder = session.getClipboard();
         }
         
-        /** Initializes with the file read as clipboard. */
         public ClipboardProvider(File file) throws IOException {
             super(PasteParser.getFileDisplay(file));
             this.holder = new ClipboardHolder(loadClipBoard(file));
@@ -222,12 +219,13 @@ public class PasteBrush implements Brush {
         }
         
         /**
-         * Returns the file in the schematics directory.
-         * Might throw an BrushException.
+         * Creates a file via the schematic path with the destination appended.
+         * Validates its path, then returns it.
+         * 
+         * @throws BrushException
          */
         public static File getSchematicFile(String destination) {
-            String path = getRootPath() + "/schematics/";
-            File   file = new File(path + destination);
+            File file = new File(getSchemPath() + File.separatorChar + destination);
             if (destination.endsWith("/")) validateFolder(file);
             else                           validateFile(file);
             return file;
@@ -238,7 +236,7 @@ public class PasteBrush implements Brush {
          * Stripping away information about the root.
          */
         public static String getFileDisplay(File file) {
-            String prefix = getRootPath();
+            String prefix = StringUtils.substringBeforeLast(getSchemPath(), File.separator);
             String full   = file.getAbsolutePath();
             return full.substring(prefix.length(), full.length());
         }
@@ -273,20 +271,21 @@ public class PasteBrush implements Brush {
         }
         
         /**
-         * Ensures that the path is inside the worldEdit folder.
+         * Ensures that the path is inside the schematics folder.
          */
         public static void validatePath(File file) {
             String path = file.toPath().normalize().toString();
-            if (!path.startsWith(getRootPath())) {
+            if (!path.startsWith(getSchemPath())) {
                 throw new BrushException("File is on an unsafe path.");
             }
         }
         
         /**
-         * Returns the root path for the worldEdit folder.
+         * Returns the absolute path for the schematics folder.
          */
-        public static String getRootPath() {
-            return WeBrush.getWorldEdit().getDataFolder().getAbsolutePath();
+        public static String getSchemPath() {
+            String dir = WorldEdit.getInstance().getConfiguration().saveDir;
+            return WorldEdit.getInstance().getWorkingDirectoryFile(dir).getAbsolutePath();
         }
     }
     
@@ -313,7 +312,7 @@ public class PasteBrush implements Brush {
                     if (file.getName().startsWith(getAfterSlash(arg)) 
                     && !file.getName().contains(" ")) {
                         if (file.isDirectory()) {
-                            list.add(path + file.getName() + "/");
+                            list.add(path + file.getName() + '/');
                         } else if (file.getName().endsWith(".schem")) {
                             list.add(path + file.getName());
                         }
@@ -339,7 +338,7 @@ public class PasteBrush implements Brush {
          * Returns an empty string, if the input contains no slash.
          */
         private static String getBeforeSlash(String str) {
-            int index = str.lastIndexOf("/");
+            int index = str.lastIndexOf('/');
             if (index == -1) return "";
             return str.substring(0, index + 1);
         }
