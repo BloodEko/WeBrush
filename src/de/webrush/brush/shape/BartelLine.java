@@ -64,8 +64,11 @@ public class BartelLine {
     }
     
     private EditSession getSession() {
-        return WorldEdit.getInstance().getEditSessionFactory().
-                getEditSession(player.getWorld(), session.getBlockChangeLimit(), player);
+        return WorldEdit.getInstance().newEditSessionBuilder()
+                .actor(player)
+                .world(player.getWorld())
+                .maxBlocks(session.getBlockChangeLimit())
+                .build();
     }
     
     private void drawLine(CuboidRegion region) throws MaxChangedBlocksException {

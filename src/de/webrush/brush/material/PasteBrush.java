@@ -32,8 +32,8 @@ import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.util.Direction;
-
-import net.md_5.bungee.api.ChatColor;
+import com.sk89q.worldedit.util.formatting.text.TextComponent;
+import com.sk89q.worldedit.util.formatting.text.format.TextColor;
 
 /**
  * Allows pasting of a single clipboard, file or folder.
@@ -73,10 +73,10 @@ public class PasteBrush implements Brush {
             clipboard.setOrigin(oldOrigin);
         } 
         catch(FileNotFoundException ex) {
-            player.print(ChatColor.RED + "Error! File no longer found. Reload brush.");
+            player.print(TextComponent.of("Error! File no longer found. Reload brush.", TextColor.RED));
         } 
         catch(Exception ex) {
-            player.print(ChatColor.RED + "Error! Check console...");
+            player.print(TextComponent.of("Error! Check console...", TextColor.RED));
             ex.printStackTrace();
         }
     }
@@ -285,7 +285,7 @@ public class PasteBrush implements Brush {
          */
         public static String getSchemPath() {
             String dir = WorldEdit.getInstance().getConfiguration().saveDir;
-            return WorldEdit.getInstance().getWorkingDirectoryFile(dir).getAbsolutePath();
+            return WorldEdit.getInstance().getWorkingDirectoryPath(dir).toFile().getAbsolutePath();
         }
     }
     

@@ -9,8 +9,8 @@ import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.RegionSelector;
-
-import net.md_5.bungee.api.ChatColor;
+import com.sk89q.worldedit.util.formatting.text.TextComponent;
+import com.sk89q.worldedit.util.formatting.text.format.TextColor;
 
 /**
  * Brushes a line from the first selected point
@@ -35,7 +35,7 @@ public class LineBrush implements Brush {
             session.drawLine(pattern, selector.getPrimaryPosition(), click, size, true);
         } 
         catch (IncompleteRegionException ex) {
-            player.print(ChatColor.RED + "First position undefined: " + ex.getMessage());
+            player.print(TextComponent.of("First position undefined: " + ex.getMessage(), TextColor.RED));
         }
     }
     
