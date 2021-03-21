@@ -32,8 +32,8 @@ import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.util.Direction;
-import com.sk89q.worldedit.util.formatting.text.TextComponent;
-import com.sk89q.worldedit.util.formatting.text.format.TextColor;
+
+import de.webrush.util.Util;
 
 /**
  * Allows pasting of a single clipboard, file or folder.
@@ -73,10 +73,10 @@ public class PasteBrush implements Brush {
             clipboard.setOrigin(oldOrigin);
         } 
         catch(FileNotFoundException ex) {
-            player.print(TextComponent.of("Error! File no longer found. Reload brush.", TextColor.RED));
+            Util.printError(player, "Error! File no longer found. Reload brush.");
         } 
         catch(Exception ex) {
-            player.print(TextComponent.of("Error! Check console...", TextColor.RED));
+            Util.printError(player, "Error! Check console...");
             ex.printStackTrace();
         }
     }

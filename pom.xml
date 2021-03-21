@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>WeBrush</groupId>
   <artifactId>WeBrush</artifactId>
-  <version>1.0.9</version>
+  <version>1.1.0</version>
   
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -64,7 +64,7 @@
       			<configuration>
       				<target>
       					<echo>ANT TASK - copying files....</echo>
-                        <copy todir="${user.home}/Desktop/mc/server-1-16-2/plugins" overwrite="true" flatten="true">
+                        <copy todir="${user.home}/Desktop/mc/server-1-16-5/plugins" overwrite="true" flatten="true">
                             <fileset dir="${basedir}" >
                                 <include name="target/${artifactId}-${version}.jar" />
                             </fileset>
@@ -111,14 +111,14 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.16.2-R0.1-SNAPSHOT</version>
+      <version>1.16.5-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     
     <dependency>
 	  <groupId>com.sk89q.worldedit</groupId>
 	  <artifactId>worldedit-bukkit</artifactId>
-	  <version>7.2.0-SNAPSHOT</version>
+	  <version>7.2.2</version>
       <scope>provided</scope>
 	</dependency>
 	

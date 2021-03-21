@@ -21,8 +21,6 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.util.HandSide;
 import com.sk89q.worldedit.util.TreeGenerator;
 import com.sk89q.worldedit.util.TreeGenerator.TreeType;
-import com.sk89q.worldedit.util.formatting.text.TextComponent;
-import com.sk89q.worldedit.util.formatting.text.format.TextColor;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
 import de.webrush.brush.material.OverlayBrush;
@@ -45,6 +43,7 @@ import de.webrush.brush.terrain.FlattenBrush;
 import de.webrush.brush.terrain.SpikeBrush;
 import de.webrush.util.PreSet;
 import de.webrush.util.PreSetManager;
+import de.webrush.util.Util;
 import net.md_5.bungee.api.ChatColor;
 
 public class DispatchLayer {
@@ -131,7 +130,7 @@ public class DispatchLayer {
             TreeType tree     = TreeGenerator.lookup(treename);
             
             if (tree == null) {
-                player.print(TextComponent.of("Tree not found: " + treename, TextColor.RED));
+                Util.printError(player, "Tree not found: " + treename);
                 return;
             }
             
@@ -171,12 +170,12 @@ public class DispatchLayer {
             double  quality    = getDoubleOrDefault(args, 6, 5);
             boolean fill       = getBooleanOrDefault(args, 7, true);
             
-            player.print(TextComponent.of(
+            Util.printMessage(player,
                     "Set splatter line."    +
                     " mat:"        + format(mat) + " size:"    + size + 
                     " tension:"    + tension     + " bias:"    + bias + 
                     " continuity:" + continuity  + " quality:" + quality + 
-                    " fill:" + fill, TextColor.LIGHT_PURPLE));
+                    " fill:" + fill);
             
             checkSize(size);
             new BartelLine(player, session, mat, size, tension, bias, continuity, quality, fill).build();
@@ -339,7 +338,7 @@ public class DispatchLayer {
         
         public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
             if (args.length <= 1) {
-                player.print(TextComponent.of("Args length too short!", TextColor.LIGHT_PURPLE));
+                Util.printMessage(player, "Args length too short!");
                 return;
             }
             
@@ -350,9 +349,9 @@ public class DispatchLayer {
                 int     counter = manager.map.keySet().size();
                 boolean error   = manager.error;
                 
-                player.print(TextComponent.of("Reloaded Presets. (" + counter + ")", TextColor.LIGHT_PURPLE));
+                Util.printMessage(player, "Reloaded Presets. (" + counter + ")");
                 if (error) {
-                    player.print(TextComponent.of("An error occured! Check console.", TextColor.LIGHT_PURPLE));
+                    Util.printMessage(player, "An error occured! Check console.");
                 }
                 return;
             }
@@ -360,7 +359,7 @@ public class DispatchLayer {
             String key    = args[1];
             PreSet preSet = WeBrush.getPreSetManager().map.get(key);
             preSet.loadAll(player.getPlayer());
-            player.print(TextComponent.of("Loaded Preset:" + key, TextColor.LIGHT_PURPLE));
+            Util.printMessage(player, "Loaded Preset:" + key);
         }
     }
     
@@ -474,7 +473,7 @@ public class DispatchLayer {
             String    name  = "Set "   +       brushname;
             String    size  = "brush(" + (int) brushsize + ")";
             
-            player.printInfo(TextComponent.of(color + name + size + debug));
+            Util.printMessage(player, color + name + size + debug);
         }
         
         
