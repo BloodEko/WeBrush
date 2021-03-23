@@ -1,8 +1,11 @@
-name: WeBrush
+name: ${project.artifactId}
+version: ${project.version}
+
 main: de.webrush.WeBrush
-version: 1.0.9
 api-version: 1.13
+
 depend: [WorldEdit]
+
 commands:
    webrush:
       permission: webrush.admin

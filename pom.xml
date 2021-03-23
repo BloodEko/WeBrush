@@ -16,6 +16,7 @@
     			<include>plugin.yml</include>
     			<include>preset.yml</include>
     		</includes>
+            <filtering>true</filtering>
     	</resource>
     </resources>
     
