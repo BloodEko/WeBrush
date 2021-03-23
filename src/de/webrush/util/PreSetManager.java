@@ -19,7 +19,8 @@ import de.webrush.util.PreSet.SlotOperation;
 public class PreSetManager {
 
     public Map<String, PreSet> map = new HashMap<>();
-    public boolean           error = false;
+    public boolean error = false;
+    private int delay;
     
     public PreSetManager() {
         reload();
@@ -39,6 +40,7 @@ public class PreSetManager {
      */
     private void loadPreSets() {
         try {
+            loadDelay(getRootSection());
             for (ConfigurationSection presetSection : getSubSections(getRootSection())) {
                 loadPreSet(presetSection);
             }
@@ -48,6 +50,10 @@ public class PreSetManager {
             System.out.println("[WeBrush] Could not load presets.");
             error = true;
         }
+    }
+    
+    private void loadDelay(ConfigurationSection rootSection) {
+        delay = rootSection.getInt("delay", 0);
     }
     
     /**
@@ -60,7 +66,7 @@ public class PreSetManager {
                 slots.add(SlotOperation.valueOf(slotSection.getName(), slotSection));
             }
             
-            PreSet set = new PreSet(slots);
+            PreSet set = new PreSet(slots, delay);
             map.put(presetSection.getName(), set);
         }
         catch (Exception ex) {
@@ -79,7 +85,11 @@ public class PreSetManager {
             return list;
         }
         for (String key : parent.getKeys(false)) {
-            list.add(parent.getConfigurationSection(key));
+            ConfigurationSection add = parent.getConfigurationSection(key);
+            if (add == null) {
+                continue;
+            }
+            list.add(add);
         }
         return list;
     }
@@ -115,3 +125,4 @@ public class PreSetManager {
     }
      
 }
+

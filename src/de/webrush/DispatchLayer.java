@@ -358,8 +358,15 @@ public class DispatchLayer {
             
             String key    = args[1];
             PreSet preSet = WeBrush.getPreSetManager().map.get(key);
-            preSet.loadAll(player.getPlayer());
-            Util.printMessage(player, "Loaded Preset:" + key);
+            if (preSet == null) {
+                Util.printError(player, "Preset not found.");
+                return;
+            }
+            
+            preSet.loadAll(() -> {
+                Util.setHeldItemSlot(player, 0);
+                Util.printMessage(player, "Loaded Preset:" + key);
+            }, player.getPlayer());
         }
     }
     

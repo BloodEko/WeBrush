@@ -1,8 +1,12 @@
 # ------------------------------------------------------------------------------
 # Define customized presets here.                                              |
 # Itemnames: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html |
+#                                                                              |
+# Define how much ticks to "delay" between actions. 5 ticks might be a good    |
+# speed/consistency compromise, to allow async/FAWE commands for completion.   |
 #-------------------------------------------------------------------------------
 preset:
+  delay: 0
   
   spike:
     1:
