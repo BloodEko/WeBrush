@@ -11,6 +11,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 
 import de.webrush.util.ChangeTracker;
+import de.webrush.util.Util;
 
 /**
  * Smooths terrain. Similar to /b bb from VoxelSniper.
@@ -18,8 +19,6 @@ import de.webrush.util.ChangeTracker;
  * Todo: debug
  */
 public class BlendBallBrush implements Brush {
-
-    private final int WORLD_HEIGHT = 256;
     
     @Override
     public void build(EditSession session, BlockVector3 pos, Pattern pattern, double size)
@@ -63,7 +62,7 @@ public class BlendBallBrush implements Brush {
                     for (int ox = -1; ox <= 1; ox++) {
                         for (int oz = -1; oz <= 1; oz++) {
                             for (int oy = -1; oy <= 1; oy++) {
-                                if (oy + y0 < 0 || oy + y0 > WORLD_HEIGHT) {
+                                if (oy + y0 < Util.WORLD_DEPTH || oy + y0 > Util.WORLD_HEIGHT) {
                                     continue;
                                 }
                                 BlockState state = tracker.get(BlockVector3.at(x0 + ox, y0 + oy, z0 + oz));

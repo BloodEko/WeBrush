@@ -103,18 +103,26 @@ public class WeBrush extends JavaPlugin implements CommandExecutor, TabCompleter
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Command not usable from console!");
-            return true;
-        }
-        
         if (args.length == 0) {
             sender.sendMessage(getHelpText());
-            return true;
         }
-        
-        setBrush((Player) sender, args[0], args);
+        else if (args[0].equals("version")) {
+            sendVersionText(sender);
+        }
+        else if (!(sender instanceof Player)) {
+            sender.sendMessage("Command not usable from console!");
+        }
+        else {
+            setBrush((Player) sender, args[0], args);
+        }
         return true;
+    }
+    
+    private void sendVersionText(CommandSender sender) {
+        String ornament = ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH + "------";
+        sender.sendMessage(ornament + ChatColor.WHITE + " Versions " + ornament);
+        sender.sendMessage(ChatColor.GRAY + "WorldEdit version: " + worldEditPlugin.getDescription().getVersion());
+        sender.sendMessage(ChatColor.GRAY + "Webrush version: " + getDescription().getVersion());
     }
 
     private String getHelpText() {

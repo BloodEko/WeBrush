@@ -9,6 +9,8 @@ import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
+import de.webrush.util.Util;
+
 /**
  * Replaces existing blocks by a specific depth. <br>
  * Similar to /b over d3 from VoxelSniper. <br>
@@ -45,7 +47,7 @@ public class OverlayBrush implements Brush {
                     continue;
                 }
                 
-                for (int y = pos.getY(); y > 0; y--) {
+                for (int y = pos.getY(); y > Util.WORLD_DEPTH; y--) {
                     BlockType layerBlockId = session.getBlock(BlockVector3.at(pos.getX() + x, y, pos.getZ() + z)).getBlockType();
                     if (isUnsolid(layerBlockId)) { // check for surface
                         continue;

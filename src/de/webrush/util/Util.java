@@ -11,6 +11,11 @@ import com.sk89q.worldedit.util.formatting.text.format.TextColor;
  * Bundles various utilities.
  */
 public class Util {
+    /** The highest block excluded of the world.*/
+    public static final int WORLD_HEIGHT = 320;
+    
+    /** The lowest block included in the world. */
+    public static final int WORLD_DEPTH = -64;
     
     /**
      * Sends a message in WorldEdit color.
