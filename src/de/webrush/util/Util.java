@@ -38,4 +38,29 @@ public class Util {
         Player pl = BukkitAdapter.adapt(player);
         pl.getInventory().setHeldItemSlot(slot);
     }
+    
+    /**
+     * Returns the string after the given token.
+     * Returns an empty string, if it doesn't contain the token.
+     * Otherwise returns the original string.
+     */
+    public static String after(String str, String token) {
+        int at = str.indexOf(token);
+        if (at == -1) {
+            return "";
+        }
+        return str.substring(at + token.length());
+    }
+    
+    /**
+     * Returns the string before the last occurrence of the token.
+     * Or the original string.
+     */
+    public static String beforeLast(String str, String token) {
+        int at = str.lastIndexOf(token);
+        if (at == -1) {
+            return str;
+        }
+        return str.substring(0, at);
+    }
 }

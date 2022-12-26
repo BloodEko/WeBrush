@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.EmptyClipboardException;
 import com.sk89q.worldedit.LocalSession;
@@ -236,7 +234,7 @@ public class PasteBrush implements Brush {
          * Stripping away information about the root.
          */
         public static String getFileDisplay(File file) {
-            String prefix = StringUtils.substringBeforeLast(getSchemPath(), File.separator);
+            String prefix = Util.beforeLast(getSchemPath(), File.separator);
             String full   = file.getAbsolutePath();
             return full.substring(prefix.length(), full.length());
         }

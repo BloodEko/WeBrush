@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxBrushRadiusException;
 import com.sk89q.worldedit.WorldEdit;
@@ -485,7 +483,7 @@ public class DispatchLayer {
         
         
         public String format(Pattern pattern) {
-            return StringUtils.substringAfter(pattern.toString(), "minecraft:");
+            return Util.after(pattern.toString(), "minecraft:");
         }
 
         
