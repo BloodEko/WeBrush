@@ -25,6 +25,7 @@ import de.webrush.brush.material.OverlayBrush;
 import de.webrush.brush.material.PasteBrush;
 import de.webrush.brush.material.PasteBrush.PasteParser;
 import de.webrush.brush.material.PasteBrush.SchematicProvider;
+import de.webrush.brush.material.SelectBrush;
 import de.webrush.brush.material.TestBrush;
 import de.webrush.brush.material.TreeBrush;
 import de.webrush.brush.material.VineBrush;
@@ -61,6 +62,7 @@ public class DispatchLayer {
         brushes.put("cube",       new LoadCube());
         brushes.put("line",       new LoadLineBrush());
         brushes.put("sphere",     new LoadSphereBrush());
+        brushes.put("select",     new LoadSelectBrush());
         
         //terrain
         brushes.put("bb",      new LoadBlendBall());
@@ -199,6 +201,48 @@ public class DispatchLayer {
             initBrush(player, session, pattern, 0,
                       new LineBrush(player, session), "Line",
                     " Mat:" + format(pattern));
+        }
+    }
+    
+    public static class LoadSelectBrush extends BaseLoader {
+
+        @Override
+        public void loadBrush(BukkitPlayer player, LocalSession session, String[] args) throws WorldEditException {
+            double radius = getAllowedRadius();
+            initBrush(player, session, null, radius, 
+                    new SelectBrush(player, session.getRegionSelector(player.getWorld()), session), 
+                   "Select", "");
+        }
+        
+        /**
+         * Allows a size twice of the configured brush size.
+         * Because the SelectBrush is only reading, which is faster.
+         */
+        @Override
+        public void checkSize(double size) throws MaxBrushRadiusException {
+            super.checkSize(size / 2);
+        }
+        
+        /**
+         * Returns the default radius of 40.
+         * If this is larger than twice the allowed radius, minimizes it.
+         */
+        private double getAllowedRadius() {
+            double radius = 40;
+            if (getMaxRadius() <= 0) {
+                return radius;
+            }
+            if (getMaxRadius() < (radius / 2)) {
+                return getMaxRadius() * 2;
+            }
+            return radius;
+        }
+        
+        /**
+         * Returns the maximum configured brush size.
+         */
+        private double getMaxRadius() {
+            return WorldEdit.getInstance().getConfiguration().maxBrushRadius;
         }
     }
     
