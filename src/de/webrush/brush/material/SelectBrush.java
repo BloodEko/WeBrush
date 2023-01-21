@@ -40,10 +40,8 @@ public class SelectBrush implements Brush {
     public void build(EditSession session, BlockVector3 position, Pattern pattern, double size)
             throws MaxChangedBlocksException {
         
-        long growingMs = System.currentTimeMillis();
         GrowingSelector growing = new GrowingSelector(session, position, (int) size);
         growing.grow();
-        growingMs = System.currentTimeMillis() - growingMs;
         
         SelectorLimits limits = ActorSelectorLimits.forActor(player);
         selector.clear();
@@ -51,7 +49,6 @@ public class SelectBrush implements Brush {
         selector.selectSecondary(growing.pos2, limits);
         
         //copy blocks to clipboard
-        long copyMs = System.currentTimeMillis();
         try {
             checkRegionBounds(selector.getRegion(), localSession);
             BlockArrayClipboard clipboard = new BlockArrayClipboard(selector.getRegion());
@@ -64,14 +61,11 @@ public class SelectBrush implements Brush {
         } catch (IncompleteRegionException ex) {
             ex.printStackTrace();
         }
-        copyMs = System.currentTimeMillis() - copyMs;
         
         // Selected and copied X blocks. (100, 50, 100)
         BlockVector3 volumeVec = growing.pos2.subtract(growing.pos1).add(1, 1, 1);
         player.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "Selected and copied " 
-                                     + selector.getVolume() + " blocks. " + volumeVec 
-                                     + " within " + growingMs + "+" + copyMs 
-                                     + "ms (" + growing.reads + " reads)" );
+                                     + selector.getVolume() + " blocks. " + volumeVec);
         
         if (growing.mightHaveMoreBlocks()) {
             player.getPlayer().sendMessage(ChatColor.RED + "There might be more blocks to select!");
@@ -103,7 +97,6 @@ public class SelectBrush implements Brush {
         
         private BlockVector3 pos1;
         private BlockVector3 pos2;
-        public int reads;
         
         public GrowingSelector(EditSession session, BlockVector3 center, int range) {
             this.session = session;
@@ -249,7 +242,6 @@ public class SelectBrush implements Brush {
                     for (int z = z1; z <= z2; z++) {
                         BlockVector3 at = BlockVector3.at(x, y, z);
                         BlockType type = session.getBlock(at).getBlockType();
-                        reads++;
                         if (!isAir(type)) {
                             return at;
                         }
